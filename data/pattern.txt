@@ -1,0 +1,6 @@
+alice is working .	alice is working .
+alice is worked .	alice is working .
+alice is talked .	alice is talking .
+alice is working .	alice is talking .
+alice is working .	alice is .
+alice is .	alice is talking .

@@ -1,0 +1,13 @@
+# python
+*.pyc
+
+# directories
+temp/
+docs/
+
+# vim
+*.swp
+*.swo
+
+# temp files
+*~

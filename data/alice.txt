@@ -1,0 +1,5 @@
+alice have the cat .	alice has a cat .
+alice has an cat .	alice has a cat .
+alice has cat .	alice has a cat .
+alice has a the cat .	alice has a cat .
+The alice has a cat .	A alice has a cat .
