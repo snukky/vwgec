@@ -66,6 +66,9 @@ class CWordFinder():
                 cor_cw = self.trg_cset.match(cor_tok)
                 if cor_cw is None:
                     continue
+                if not self.__check_if_cwords_are_compatible(err_tok, cor_tok,
+                                                             err_cw, cor_cw):
+                    continue
                 edits[(i1, i2)] = (err_tok, cor_tok, err_cw, cor_cw)
             elif tag == 'insert':
                 cor_cw = self.trg_cset.match(cor_tok)
@@ -76,3 +79,16 @@ class CWordFinder():
                 if err_cw:
                     edits[(i1, i2)] = (err_tok, '', err_cw, CWord.NULL)
         return edits
+
+    def __check_if_cwords_are_compatible(self, w1, w2, cw1, cw2):
+        """
+        Two confusion words are compatible if stars in their patterns covers
+        the same substrings.
+        """
+        if '*' not in cw1 or '*' not in cw2:
+            return True
+        i1 = cw1.find('*')
+        j1 = len(cw1) - i1 - 1
+        i2 = cw2.find('*')
+        j2 = len(cw2) - i2 - 1
+        return w1[i1:-j1] == w2[i2:-j2]
