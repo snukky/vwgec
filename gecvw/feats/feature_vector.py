@@ -13,13 +13,13 @@ class FeatureVector(object):
         self.cset = tgt_cset
         self.costs = costs
         self.src_feats = []
-        self.tgt_feats = {cw:list() for cw in self.cset}
+        self.tgt_feats = {cw: list() for cw in self.cset}
 
     def add_source_feature(self, feature):
-        self.src_feats.append(self.escape_vw_chars(feature))
+        self.src_feats.append(self.escape_special_chars(feature))
 
     def add_target_feature(self, tgt, feature):
-        self.tgt_feats[tgt].append(self.escape_vw_chars(feature))
+        self.tgt_feats[tgt].append(self.escape_special_chars(feature))
 
     def format(self, source, target):
         text = "shared |s {} {}\n".format(source, ' '.join(self.src_feats))
@@ -28,8 +28,8 @@ class FeatureVector(object):
             text += "1111:{} |t {} {}\n".format(cost, label,
                                                 ' '.join(features))
         self.src_feats = []
-        self.tgt_feats = {cw:list() for cw in self.cset}
+        self.tgt_feats = {cw: list() for cw in self.cset}
         return text + "\n"
 
-    def escape_vw_chars(self, text):
-        return text.replace(' ', '_').replace('|', '\|')
+    def escape_special_chars(self, text):
+        return text.replace(' ', '_').replace(':', ';').replace('|', '/')

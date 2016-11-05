@@ -22,8 +22,8 @@ def main():
         config['features'])
 
     for sid, cword in reader:
-        sentence = linecache.getline(args.input, sid).strip().split()
-
+        sentence = linecache.getline(args.input,
+                                     sid + 1).strip().split("\t")[0].split()
         feat_str = extractor.extract_features(cword, sentence)
         args.output.write(feat_str)
 
@@ -31,14 +31,22 @@ def main():
 def parse_user_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('cwords', nargs='?', type=argparse.FileType('r'),
-        default=sys.stdin, help="Confusion words file")
-    parser.add_argument('output', nargs='?', type=argparse.FileType('r'),
-        default=sys.stdout, help="Output file")
+    parser.add_argument(
+        'cwords',
+        nargs='?',
+        type=argparse.FileType('r'),
+        default=sys.stdin,
+        help="Confusion words file")
+    parser.add_argument(
+        'output',
+        nargs='?',
+        type=argparse.FileType('r'),
+        default=sys.stdout,
+        help="Output file")
 
     parser.add_argument('-i', '--input', required=True, help="Input sentences")
-    parser.add_argument('-f', '--config', required=True,
-        help="Configuration file")
+    parser.add_argument(
+        '-f', '--config', required=True, help="Configuration file")
 
     return parser.parse_args()
 

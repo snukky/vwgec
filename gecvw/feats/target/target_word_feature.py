@@ -9,5 +9,6 @@ from logger import log
 
 class TargetWordFeature(BaseFeature):
     def extract(self, cword, csets, sentence, vector):
-        for cw in csets.tgt:
-            vector.add_target_feature(cw, "tgt={}".format('xxx'))
+        for tgt_cw in csets.tgt:
+            tgt = csets.construct_target_word(cword.err, cword.src, tgt_cw)
+            vector.add_target_feature(tgt_cw, "tgt={}".format(tgt.lower()))

@@ -24,8 +24,15 @@ class CSetPair:
         j1 = len(cw1) - i1 - 1
         i2 = cw2.find('*')
         j2 = len(cw2) - i2 - 1
-
         return w1[i1:-j1] == w2[i2:-j2]
+
+    def construct_target_word(self, w1, cw1, cw2):
+        # TODO: Handle the case when w1 is <null>
+        if '*' not in cw2:
+            return cw2
+        i1 = cw1.find('*')
+        j1 = len(cw1) - i1 - 1
+        return cw2.replace('*', w1[i1:-j1])
 
 
 class CSet:

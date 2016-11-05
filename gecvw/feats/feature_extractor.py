@@ -14,9 +14,9 @@ from logger import log
 class FeatureExtractor(object):
     def __init__(self, cset_pair, feats):
         self.csets = cset_pair
+        self.vector = FeatureVector(self.csets.tgt)
         self.features = []
         self.__initialize_features(feats)
-        self.vector = FeatureVector(self.csets.tgt)
 
     def extract_features(self, cword, sentence):
         log.debug("extracting features for {}".format(cword))
@@ -25,16 +25,16 @@ class FeatureExtractor(object):
         return self.vector.format(cword.src, cword.tgt)
 
     def __initialize_features(self, features):
-        for cls in self.__get_subclasses(BaseFeature):
-            if cls.__name__ in features:
-                kwargs = features[cls.__name__] or {}
-                log.info("Initialize feature {}({})".format(cls.__name__,
-                                                            kwargs or ''))
-                self.features.append(cls(**kwargs))
+        feature_classes = {cls.__name__: cls
+                           for cls in self.__get_subclasses(BaseFeature)}
 
-        feature_set = set(f.__class__.__name__ for f in self.features)
         for feat in features:
-            if feat not in feature_set:
+            if feat in feature_classes:
+                kwargs = features[feat] or {}
+                log.info("Initialize {} {}".format(feat, kwargs))
+                obj = feature_classes[feat](**kwargs)
+                self.features.append(obj)
+            else:
                 log.warn("Unrecognized feature: {}".format(feat))
 
     def __get_subclasses(self, cls):

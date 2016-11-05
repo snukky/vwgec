@@ -12,3 +12,5 @@ features:
     SourceWordFeature:
     SourceNGramFeature:
     TargetWordFeature:
+    BOWFeature:
+        window: 4

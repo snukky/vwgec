@@ -9,4 +9,4 @@ from logger import log
 
 class SourceWordFeature(BaseFeature):
     def extract(self, cword, csets, sentence, vector):
-        vector.add_source_feature("err={}".format(cword.err))
+        vector.add_source_feature("err={}".format(cword.err.lower()))
