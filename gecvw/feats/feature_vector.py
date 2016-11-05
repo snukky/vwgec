@@ -7,11 +7,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from logger import log
 
+DEFAULT_COSTS = {'aaa': 0.0, 'aab': 1.0, 'abb': 0.0, 'aba': 4.0, 'abc': 1.0}
+
 
 class FeatureVector(object):
-    def __init__(self, tgt_cset, costs=[]):
+    def __init__(self, tgt_cset, costs={}):
         self.cset = tgt_cset
-        self.costs = costs
+        self.costs = costs or DEFAULT_COSTS
         self.src_feats = []
         self.tgt_feats = {cw: list() for cw in self.cset}
 
@@ -23,9 +25,9 @@ class FeatureVector(object):
 
     def format(self, source, target):
         text = "shared |s {} {}\n".format(source, ' '.join(self.src_feats))
-        for label, features in self.tgt_feats.iteritems():
-            cost = 0.0 if label == target else 1.0
-            text += "1111:{} |t {} {}\n".format(cost, label,
+        for candidate, features in self.tgt_feats.iteritems():
+            cost = self.get_cost(source, target, candidate)
+            text += "1111:{} |t {} {}\n".format(cost, candidate,
                                                 ' '.join(features))
         self.src_feats = []
         self.tgt_feats = {cw: list() for cw in self.cset}
@@ -33,3 +35,13 @@ class FeatureVector(object):
 
     def escape_special_chars(self, text):
         return text.replace(' ', '_').replace(':', ';').replace('|', '/')
+
+    def get_cost(self, source, target, candidate):
+        is_correct = candidate == target
+        if source == target:
+            return self.costs['aaa'] if is_correct else self.costs['aab']
+        elif is_correct:
+            return self.costs['abb']
+        elif source == candidate:
+            return self.costs['aba']
+        return self.costs['abc']

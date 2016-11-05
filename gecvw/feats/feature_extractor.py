@@ -12,9 +12,9 @@ from logger import log
 
 
 class FeatureExtractor(object):
-    def __init__(self, cset_pair, feats):
+    def __init__(self, cset_pair, feats, costs=None):
         self.csets = cset_pair
-        self.vector = FeatureVector(self.csets.tgt)
+        self.vector = FeatureVector(self.csets.tgt, costs)
         self.features = []
         self.__initialize_features(feats)
 

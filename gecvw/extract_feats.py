@@ -19,7 +19,8 @@ def main():
     reader = CWordReader(args.cwords)
     extractor = FeatureExtractor(
         CSetPair(config['source-cset'], config['target-cset']),
-        config['features'])
+        config['features'],
+        config['costs'])
 
     for sid, cword in reader:
         sentence = linecache.getline(args.input,
@@ -31,22 +32,15 @@ def main():
 def parse_user_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument(
-        'cwords',
-        nargs='?',
-        type=argparse.FileType('r'),
-        default=sys.stdin,
-        help="Confusion words file")
-    parser.add_argument(
-        'output',
-        nargs='?',
-        type=argparse.FileType('r'),
-        default=sys.stdout,
-        help="Output file")
+    parser.add_argument('cwords', nargs='?', type=argparse.FileType('r'),
+        default=sys.stdin, help="Confusion words file")
+    parser.add_argument('output', nargs='?', type=argparse.FileType('r'),
+        default=sys.stdout, help="Output file")
 
-    parser.add_argument('-i', '--input', required=True, help="Input sentences")
-    parser.add_argument(
-        '-f', '--config', required=True, help="Configuration file")
+    parser.add_argument('-i', '--input', required=True,
+        help="Input sentences")
+    parser.add_argument('-f', '--config', required=True,
+        help="Configuration file")
 
     return parser.parse_args()
 
