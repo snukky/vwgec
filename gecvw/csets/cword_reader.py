@@ -3,6 +3,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from csets.cword import CWord
+
 
 class CWordReader(object):
     """
@@ -12,13 +14,24 @@ class CWordReader(object):
 
     NUM_FIELDS = 7
 
-    def read_line(self, line):
+    def __init__(self, stream):
+        self.stream = stream
+
+    def __iter__(self):
+        for line in self.stream:
+            yield CWordReader.read_line(line)
+
+    def format(self, sid, cword):
+        self.stream.write(CWordReader.format_line(sid, cword) + "\n")
+
+    @staticmethod
+    def read_line(line):
         fields = line.strip().split("\t")
         if len(fields) != CWordReader.NUM_FIELDS:
-            raise Exception("Incorrectly formatted line: {}".format(line.strip()))
-        return tuple([int(v) for v in fields[:3]] + fields[3:])
+            raise Exception("Incorrectly formatted line: {}".format(line))
+        return int(fields[0]), CWord(
+            int(fields[1]), int(fields[2]), *fields[3:])
 
-    def format_line(self, sid, fields):
-        if len(fields) != CWordReader.NUM_FIELDS - 1:
-            raise Exception("Incorrect number of fields: {}".format(fields))
-        return "\t".join(str(v) for v in [sid] + list(fields))
+    @staticmethod
+    def format_line(sid, cword):
+        return "\t".join(str(v) for v in [sid] + list(cword))

@@ -1,9 +1,0 @@
-path:
-    root: ''
-    vw: ''
-    moses: ''
-
-csets:
-    source-cset: a,an,the,
-    target-cset: a,an,the,
-

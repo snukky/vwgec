@@ -4,12 +4,28 @@ import re
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from csets.cword import CWord
 from logger import log
 
 
-class CWord:
-    NULL = '<null>'
-    COMMA = '<comma>'
+class CSetPair:
+    def __init__(self, src_cset, tgt_cset, sep=','):
+        self.src = CSet(src_cset, sep)
+        self.tgt = CSet(tgt_cset, sep)
+
+    def are_compatible(self, w1, w2, cw1, cw2):
+        """
+        Two confusion words are compatible if stars in their patterns covers
+        the same substrings.
+        """
+        if '*' not in cw1 or '*' not in cw2:
+            return True
+        i1 = cw1.find('*')
+        j1 = len(cw1) - i1 - 1
+        i2 = cw2.find('*')
+        j2 = len(cw2) - i2 - 1
+
+        return w1[i1:-j1] == w2[i2:-j2]
 
 
 class CSet:

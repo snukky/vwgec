@@ -4,22 +4,24 @@
 import sys
 import argparse
 
-from csets.cset import CSet
+from csets.cset import CSetPair
 from csets.cword_finder import CWordFinder
 from csets.cword_reader import CWordReader
+
+from config import load_config
 
 
 def main():
     args = parse_user_args()
+    config = load_config(args.config)
 
+    reader = CWordReader(args.output)
     finder = CWordFinder(
-        CSet(args.source_cset), CSet(args.target_cset), args.train)
-    reader = CWordReader()
+        CSetPair(config['source-cset'], config['target-cset']), args.train)
 
     for sid, line in enumerate(args.input):
-        for cword_info in finder.find_confusion_words(line):
-            line = reader.format_line(sid, cword_info)
-            args.output.write(line + "\n")
+        for cword in finder.find_confusion_words(line):
+            reader.format(sid, cword)
 
 
 def parse_user_args():
@@ -30,11 +32,13 @@ def parse_user_args():
     parser.add_argument('output', nargs='?', type=argparse.FileType('r'),
         default=sys.stdout, help="Output file")
 
-    parser.add_argument('-1', '--source-cset', required=True,
-        help="Source confusion set")
-    parser.add_argument('-2', '--target-cset', required=True,
-        help="Target confusion set")
+    # parser.add_argument('-1', '--source-cset', required=True,
+    # help="Source confusion set")
+    # parser.add_argument('-2', '--target-cset', required=True,
+    # help="Target confusion set")
 
+    parser.add_argument('-f', '--config', required=True,
+        help="Configuration file")
     parser.add_argument('-t', '--train', action='store_true',
         help="Train mode")
 

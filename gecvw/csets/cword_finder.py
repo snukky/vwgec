@@ -5,15 +5,15 @@ from difflib import SequenceMatcher
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from csets.cset import CSet, CWord
+from csets.cword import CWord
+from csets.cset import CSetPair
 from logger import log
 
 
 class CWordFinder():
-    def __init__(self, src_cset, trg_cset, train=False):
+    def __init__(self, cset_pair, train=False):
         self.train = train
-        self.src_cset = src_cset
-        self.trg_cset = trg_cset
+        self.csets = cset_pair
         self.count = 0
 
     def find_confusion_words(self, line):
@@ -22,21 +22,21 @@ class CWordFinder():
 
         for i, err in enumerate(err_toks):
             if (i, i + 1) in edits:
-                cor, err_cw, cor_cw = edits[(i, i + 1)][1:]
-                if self.trg_cset.include(cor):
-                    yield (i, i + 1, err, cor, err_cw, cor_cw)
+                cor, src_cw, tgt_cw = edits[(i, i + 1)][1:]
+                if self.csets.tgt.include(cor):
+                    yield CWord(i, i + 1, err, cor, src_cw, tgt_cw)
                     self.count += 1
                     added = True
-            elif (i, i) in edits and self.train and self.src_cset.has_null():
-                err, cor, err_cw, cor_cw = edits[(i, i)]
-                yield (i, i, err, cor, err_cw, cor_cw)
+            elif (i, i) in edits and self.train and self.csets.src.has_null():
+                err, cor, src_cw, tgt_cw = edits[(i, i)]
+                yield CWord(i, i, err, cor, src_cw, tgt_cw)
                 self.count += 1
                 added = False
             else:
-                err_cw = self.src_cset.match(err)
-                if err_cw is None:
+                src_cw = self.csets.src.match(err)
+                if src_cw is None:
                     continue
-                yield (i, i + 1, err, err, err_cw, err_cw)
+                yield CWord(i, i + 1, err, err, src_cw, src_cw)
                 self.count += 1
                 added = True
                 added = False
@@ -60,35 +60,22 @@ class CWordFinder():
             cor_tok = ' '.join(cor_toks[j1:j2])
 
             if tag == 'replace':
-                err_cw = self.src_cset.match(err_tok)
-                if err_cw is None:
+                src_cw = self.csets.src.match(err_tok)
+                if src_cw is None:
                     continue
-                cor_cw = self.trg_cset.match(cor_tok)
-                if cor_cw is None:
+                tgt_cw = self.csets.tgt.match(cor_tok)
+                if tgt_cw is None:
                     continue
-                if not self.__check_if_cwords_are_compatible(err_tok, cor_tok,
-                                                             err_cw, cor_cw):
+                if not self.csets.are_compatible(err_tok, cor_tok, src_cw,
+                                                tgt_cw):
                     continue
-                edits[(i1, i2)] = (err_tok, cor_tok, err_cw, cor_cw)
+                edits[(i1, i2)] = (err_tok, cor_tok, src_cw, tgt_cw)
             elif tag == 'insert':
-                cor_cw = self.trg_cset.match(cor_tok)
-                if cor_cw:
-                    edits[(i1, i2)] = ('', cor_tok, CWord.NULL, cor_cw)
+                tgt_cw = self.csets.tgt.match(cor_tok)
+                if tgt_cw:
+                    edits[(i1, i2)] = ('', cor_tok, CWord.NULL, tgt_cw)
             elif tag == 'delete':
-                err_cw = self.src_cset.match(err_tok)
-                if err_cw:
-                    edits[(i1, i2)] = (err_tok, '', err_cw, CWord.NULL)
+                src_cw = self.csets.src.match(err_tok)
+                if src_cw:
+                    edits[(i1, i2)] = (err_tok, '', src_cw, CWord.NULL)
         return edits
-
-    def __check_if_cwords_are_compatible(self, w1, w2, cw1, cw2):
-        """
-        Two confusion words are compatible if stars in their patterns covers
-        the same substrings.
-        """
-        if '*' not in cw1 or '*' not in cw2:
-            return True
-        i1 = cw1.find('*')
-        j1 = len(cw1) - i1 - 1
-        i2 = cw2.find('*')
-        j2 = len(cw2) - i2 - 1
-        return w1[i1:-j1] == w2[i2:-j2]

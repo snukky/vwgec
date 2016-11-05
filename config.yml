@@ -1,0 +1,14 @@
+paths:
+    root: ''
+    vw: ''
+    moses: ''
+
+# confusion sets
+source-cset: a,an,the,
+target-cset: a,an,the,
+
+# features
+features:
+    SourceWordFeature:
+    SourceNGramFeature:
+    TargetWordFeature:
