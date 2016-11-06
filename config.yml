@@ -1,7 +1,6 @@
-paths:
-    root: ''
-    vw: ''
-    moses: ''
+# paths
+vowpalwabbit: /home/romang/tools/vowpal_wabbit
+mosesdecoder: /home/romang/tools/mosesdecoder
 
 # confusion sets
 source-cset: a,an,the,
@@ -15,6 +14,8 @@ features:
     BOWFeature:
         window: 4
 
+# training
+model: /home/romang/work/gecvw/alice.vw
 costs:
     aaa: 0.0
     aab: 1.0
