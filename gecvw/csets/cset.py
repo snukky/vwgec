@@ -26,13 +26,17 @@ class CSetPair:
         j2 = len(cw2) - i2 - 1
         return w1[i1:-j1] == w2[i2:-j2]
 
-    def construct_target_word(self, w1, cw1, cw2):
+    @staticmethod
+    def construct_correction(w1, cw1, cw2):
         # TODO: Handle the case when w1 is <null>
         if '*' not in cw2:
             return cw2
         i1 = cw1.find('*')
         j1 = len(cw1) - i1 - 1
         return cw2.replace('*', w1[i1:-j1])
+
+    def construct_target_word(self, w1, cw1, cw2):
+        return CSetPair.construct_correction(w1, cw1, cw2)
 
 
 class CSet:
@@ -87,6 +91,9 @@ class CSet:
     def __iter__(self):
         for cw in self.cset:
             yield cw
+
+    def __len__(self):
+        return len(self.cset)
 
     def __str__(self):
         return "%s" % self.labels

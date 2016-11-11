@@ -24,3 +24,7 @@ class CWord:
     def __str__(self):
         return "({},{}) [{},{}] {} => {}".format(
             self.pos[0], self.pos[1], self.src, self.tgt, self.err, self.cor)
+
+    def __repr__(self):
+        return "CWord({},{} {},{})".format(
+            self.pos[0], self.pos[1], self.src, self.tgt)

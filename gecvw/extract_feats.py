@@ -33,14 +33,14 @@ def parse_user_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('cwords', nargs='?', type=argparse.FileType('r'),
-        default=sys.stdin, help="Confusion words file")
+        default=sys.stdin, help="confusion words file")
     parser.add_argument('output', nargs='?', type=argparse.FileType('r'),
-        default=sys.stdout, help="Output file")
+        default=sys.stdout, help="output file")
 
     parser.add_argument('-i', '--input', required=True,
-        help="Input sentences")
+        help="input sentences")
     parser.add_argument('-f', '--config', required=True,
-        help="Configuration file")
+        help="configuration file")
 
     return parser.parse_args()
 

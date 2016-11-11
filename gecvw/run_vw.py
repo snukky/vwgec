@@ -8,6 +8,7 @@ import argparse
 sys.path.insert(0, os.path.dirname(__file__))
 
 from vw.vw_predictor import VWPredictor
+from preds.output_formatter import OutputFormatter
 from config import load_config
 
 
@@ -16,7 +17,7 @@ def main():
     config = load_config(args.config)
 
     vw = VWPredictor(config['vowpalwabbit'])
-    vw.run(config['model'], args.data, args.prediction)
+    vw.run(config['model'], args.data, args.preds)
 
 
 def parse_user_args():
@@ -24,8 +25,8 @@ def parse_user_args():
 
     parser.add_argument('-d', '--data', required=True,
         help="feature data file")
-    parser.add_argument('-p', '--prediction', required=True,
-        help="output file")
+    parser.add_argument('-p', '--preds', required=True,
+        help="output prediction file")
     parser.add_argument('-f', '--config', required=True,
         help="configuration file")
 

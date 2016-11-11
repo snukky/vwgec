@@ -21,6 +21,9 @@ class CWordReader(object):
         for line in self.stream:
             yield CWordReader.read_line(line)
 
+    def next(self):
+        return CWordReader.read_line(self.stream.next())
+
     def format(self, sid, cword):
         self.stream.write(CWordReader.format_line(sid, cword) + "\n")
 
