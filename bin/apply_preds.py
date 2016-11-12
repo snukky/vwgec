@@ -5,25 +5,15 @@ import os
 import sys
 import argparse
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from csets.cset import CSet
-from preds.prediction_iterator import PredictionIterator
-from preds.output_formatter import OutputFormatter
-
-from config import load_config
+import gecvw
 
 
 def main():
     args = parse_user_args()
-    config = load_config(args.config)
-
-    pred_iter = PredictionIterator(
-        args.input, args.cwords, args.preds, cset=CSet(config['target-cset']))
-    formatter = OutputFormatter(args.output)
-
-    for sid, sentence, preds in pred_iter:
-        formatter.format(sid, sentence, preds)
+    config = gecvw.load_config(args.config)
+    gecvw.apply_predictions(config, args.input, args.output, args.cwords, args.preds)
 
 
 def parse_user_args():

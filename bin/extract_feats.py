@@ -1,43 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import argparse
-import linecache
 
-from csets.cset import CSetPair
-from csets.cword_finder import CWordFinder
-from feats.feature_extractor import FeatureExtractor
-from csets.cword_reader import CWordReader
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from config import load_config
-from logger import log
+import gecvw
 
 
 def main():
     args = parse_user_args()
-    config = load_config(args.config)
+    config = gecvw.load_config(args.config)
 
-    csets = CSetPair(
-        args.source_cset or config['source-cset'],
-        args.target_cset or config['target-cset'])
+    if args.source_cset:
+        config['source-cset'] = args.source_cset
+    if args.target_cset:
+        config['target-cset'] = args.target_cset
 
-    finder = CWordFinder(csets, args.train)
-    extractor = FeatureExtractor(csets, config['features'], config['costs'])
-    reader = CWordReader(args.cwords)
-
-    count = 0
-    for sid, line in enumerate(args.input):
-        for cword in finder.find_confusion_words(line):
-
-            sentence = line.split("\t", 1)[0].split()
-            feat_str = extractor.extract_features(cword, sentence)
-            args.output.write(feat_str)
-
-            reader.format(sid, cword)
-            count += 1
-
-    log.info("Found {} confusion words".format(count))
+    gecvw.extract_features(config, args.input, args.output, args.cwords,
+                           args.train)
 
 
 def parse_user_args():

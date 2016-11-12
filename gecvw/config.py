@@ -4,14 +4,14 @@ import yaml
 ROOT_DIR    = os.path.dirname(os.path.realpath(__file__))
 SCRIPTS_DIR = os.path.abspath(os.path.join(ROOT_DIR, '..', 'scripts'))
 
-CONFIG = {}
+Config = {}
 
 def load_config(config_file):
-    global CONFIG
+    global Config
     with open(config_file, 'r') as config_io:
         try:
-            CONFIG = yaml.load(config_io)
-            return CONFIG
+            Config = yaml.load(config_io)
+            return Config
         except yaml.YAMLError as ex:
             print(ex)
-    return CONFIG
+    return Config
