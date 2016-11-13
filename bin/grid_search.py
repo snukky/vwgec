@@ -14,18 +14,18 @@ def main():
     args = parse_user_args()
     config = gecvw.load_config(args.config)
 
-    threshold = gecvw.run_grid_search(config, None, args.pred)
+    threshold = gecvw.run_grid_search(config, args.m2, args.cwords, args.pred)
     print threshold
 
 
 def parse_user_args():
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument('--m2', required=True,
-        # help="")
+    parser.add_argument('--m2', required=True,
+        help="M2 file")
 
-    # parser.add_argument('-c', '--cwords', required=True,
-        # help="file with confusion words")
+    parser.add_argument('-c', '--cwords', required=True,
+        help="file with confusion words")
     parser.add_argument('-p', '--pred', type=argparse.FileType('r'), required=True,
         help="confusion words")
     parser.add_argument('-f', '--config', required=True,

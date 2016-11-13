@@ -29,6 +29,22 @@ def load_config(config_file):
     return None
 
 
+def find_confusion_words(config, input, cwords, train=False):
+    log.info("Find confusion words in {}".format(input.name))
+
+    csets = CSetPair(config['source-cset'], config['target-cset'])
+    finder = CWordFinder(csets, train)
+    reader = CWordReader(cwords)
+
+    count = 0
+    for sid, line in enumerate(input):
+        for cword in finder.find_confusion_words(line):
+            reader.format(sid, cword)
+            count += 1
+
+    log.info("Found {} confusion words".format(count))
+
+
 def extract_features(config, input, output, cwords, train=False):
     log.info("Extract features from {}".format(input.name))
 
@@ -60,7 +76,7 @@ def apply_predictions(config, input, output, cwords, preds):
         formatter.format(sid, sentence, preds)
 
 
-def run_grid_search(config, cwords, preds):
-    evaluator = M2Evaluator(None, cwords)
+def run_grid_search(config, m2_file, cwords, preds):
+    evaluator = M2Evaluator(m2_file, cwords)
     searcher = GridSearch(evaluator, preds)
     return searcher.run()

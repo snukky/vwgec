@@ -1,7 +1,13 @@
 import cmd
 import config
 
+import utils.cmd
 from logger import log
+
+
+def parallelize_m2(m2_file, txt_file):
+    cmd.run("perl {scripts}/make_parallel.perl < {m2} > {txt}" \
+        .format(scripts=SCRIPTS_DIR, m2=m2_file, txt=txt_file))
 
 
 class M2Evaluator(object):
@@ -16,7 +22,7 @@ class M2Evaluator(object):
         log.info("M2 fscore: {}".format(1.0))
         return (1.0, self.i)
 
-    def evaluate(txt_file, m2_file):
+    def evaluate(self, txt_file, m2_file):
         num_of_lines = cmd.wc(txt_file)
         with open(m2_file) as m2_io:
             num_of_sents = sum(1 for line in m2_io if line.startswith("S "))
