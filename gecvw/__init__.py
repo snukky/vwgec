@@ -17,19 +17,15 @@ from prediction.output_formatter import OutputFormatter
 from evaluation.grid_search import GridSearch
 from evaluation.m2 import M2Evaluator
 
+from settings import config
 from logger import log
 
 
-def load_config(config_file):
-    with open(config_file, 'r') as config_io:
-        try:
-            return yaml.load(config_io)
-        except yaml.YAMLError as ex:
-            print(ex)
-    return None
+def load_config(config_file, updated_configs):
+    settings.config.load_config(config_file, updated_configs)
 
 
-def find_confusion_words(config, input, cwords, train=False):
+def find_confusion_words(input, cwords, train=False):
     log.info("Find confusion words in {}".format(input.name))
 
     csets = CSetPair(config['source-cset'], config['target-cset'])
@@ -45,7 +41,7 @@ def find_confusion_words(config, input, cwords, train=False):
     log.info("Found {} confusion words".format(count))
 
 
-def extract_features(config, input, output, cwords, train=False):
+def extract_features(input, output, cwords, train=False):
     log.info("Extract features from {}".format(input.name))
 
     csets = CSetPair(config['source-cset'], config['target-cset'])
@@ -67,7 +63,7 @@ def extract_features(config, input, output, cwords, train=False):
     log.info("Found {} confusion words".format(count))
 
 
-def apply_predictions(config, input, output, cwords, preds):
+def apply_predictions(input, output, cwords, preds):
     pred_iter = PredictionIterator(
         input, cwords, preds, cset=CSet(config['target-cset']))
     formatter = OutputFormatter(output)
@@ -76,7 +72,7 @@ def apply_predictions(config, input, output, cwords, preds):
         formatter.format(sid, sentence, preds)
 
 
-def run_grid_search(config, m2_file, cwords, preds):
+def run_grid_search(m2_file, cwords, preds):
     evaluator = M2Evaluator(m2_file, cwords)
     searcher = GridSearch(evaluator, preds)
     return searcher.run()

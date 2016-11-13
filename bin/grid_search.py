@@ -12,9 +12,9 @@ import gecvw
 
 def main():
     args = parse_user_args()
-    config = gecvw.load_config(args.config)
+    gecvw.load_config(args.config)
 
-    threshold = gecvw.run_grid_search(config, args.m2, args.cwords, args.pred)
+    threshold = gecvw.run_grid_search(args.m2, args.cwords, args.pred)
     print threshold
 
 

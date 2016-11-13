@@ -12,8 +12,8 @@ import gecvw
 
 def main():
     args = parse_user_args()
-    config = gecvw.load_config(args.config)
-    gecvw.apply_predictions(config, args.input, args.output, args.cwords, args.preds)
+    gecvw.load_config(args.config)
+    gecvw.apply_predictions(args.input, args.output, args.cwords, args.preds)
 
 
 def parse_user_args():

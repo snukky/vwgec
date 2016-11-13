@@ -12,15 +12,9 @@ import gecvw
 
 def main():
     args = parse_user_args()
-    config = gecvw.load_config(args.config)
-
-    if args.source_cset:
-        config['source-cset'] = args.source_cset
-    if args.target_cset:
-        config['target-cset'] = args.target_cset
-
-    gecvw.extract_features(config, args.input, args.output, args.cwords,
-                           args.train)
+    gecvw.load_config(args.config, {'source-cset': args.source_cset,
+                                    'target-cset': args.target_cset})
+    gecvw.extract_features(args.input, args.output, args.cwords, args.train)
 
 
 def parse_user_args():
