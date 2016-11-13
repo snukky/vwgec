@@ -14,6 +14,9 @@ from feats.feature_extractor import FeatureExtractor
 from preds.prediction_iterator import PredictionIterator
 from preds.output_formatter import OutputFormatter
 
+from eval.grid_search import GridSearch
+from eval.m2 import M2Evaluator
+
 from logger import log
 
 
@@ -24,15 +27,6 @@ def load_config(config_file):
         except yaml.YAMLError as ex:
             print(ex)
     return None
-
-
-def apply_predictions(config, input, output, cwords, preds):
-    pred_iter = PredictionIterator(
-        input, cwords, preds, cset=CSet(config['target-cset']))
-    formatter = OutputFormatter(output)
-
-    for sid, sentence, preds in pred_iter:
-        formatter.format(sid, sentence, preds)
 
 
 def extract_features(config, input, output, cwords, train=False):
@@ -55,3 +49,18 @@ def extract_features(config, input, output, cwords, train=False):
             count += 1
 
     log.info("Found {} confusion words".format(count))
+
+
+def apply_predictions(config, input, output, cwords, preds):
+    pred_iter = PredictionIterator(
+        input, cwords, preds, cset=CSet(config['target-cset']))
+    formatter = OutputFormatter(output)
+
+    for sid, sentence, preds in pred_iter:
+        formatter.format(sid, sentence, preds)
+
+
+def run_grid_search(config, cwords, preds):
+    evaluator = M2Evaluator(None, cwords)
+    searcher = GridSearch(evaluator, preds)
+    return searcher.run()

@@ -19,7 +19,7 @@ class FeatureExtractor(object):
         self.__initialize_features(feats)
 
     def extract_features(self, cword, sentence):
-        log.debug("extracting features for {}".format(cword))
+        log.debug("Extracting features for {}".format(cword))
         for feature in self.features:
             feature.extract(cword, self.csets, sentence, self.vector)
         return self.vector.format(cword.src, cword.tgt)

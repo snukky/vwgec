@@ -44,8 +44,8 @@ class CSet:
 
     def __init__(self, cset, sep=','):
         self.cset = self.__parse_cset(cset, sep)
-        self.labels = {self.cword_to_label(cw): cw for cw in self.cset}
-        log.info("initialize {}".format(self))
+        self.labels = dict(enumerate(self.cset))
+        log.info("Initialize {}".format(self))
 
         self.patterns = {r'^' + cw.replace('*', r'\w{3,}') + r'$': cw
                          for cw in self.cset if '*' in cw}
@@ -70,6 +70,9 @@ class CSet:
 
     def size(self):
         return len(self.cset)
+
+    def tolist(self):
+        return self.cset
 
     def cword_to_label(self, word, start_from=0):
         return self.cset.index(word) + start_from

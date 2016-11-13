@@ -7,33 +7,31 @@ from collections import Iterator
 sys.path.insert(0, os.path.dirname(__file__))
 
 from csets.cword_reader import CWordReader
+from utils.softmax import softmax
 from logger import log
 
 
 class LDFIterator(Iterator):
-    def __init__(self, stream, cset):
+    def __init__(self, stream, cset=None, sort=True):
         self.stream = stream
-        self.cset = cset
+        self.labels = cset.tolist() if cset else None
+        self.sort = sort
 
     def next(self):
         values = []
-        for i in xrange(len(self.cset)):
-            value = float(self.stream.next().strip().split(":", 1)[-1])
-            values.append(value)
-        # skip empty line
-        self.stream.next()
-
-        preds = zip(self.cset.cset, self.__softmax(values))
-        preds.sort(key=lambda x: x[1], reverse=True)
+        while True:
+            line = self.stream.next().strip()
+            if not line:
+                break
+            values.append(self.__parse_line(line))
+        labels = self.labels if self.labels else range(len(values))
+        preds = zip(labels, softmax(values))
+        if self.sort:
+            preds.sort(key=lambda x: x[1], reverse=True)
         return preds
 
-    def __softmax(self, xs):
-        norm = sum(math.exp(x) for x in xs)
-        return [math.exp(x) / norm for x in xs]
-
-class Prediction(object):
-    def __iter__(self, preds):
-        self.preds = {}
+    def __parse_line(self, line):
+        return float(line.rstrip().rsplit(":", 1)[-1])
 
 
 class PredictionIterator(object):
