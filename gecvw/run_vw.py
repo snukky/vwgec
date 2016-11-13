@@ -8,7 +8,7 @@ import argparse
 sys.path.insert(0, os.path.dirname(__file__))
 
 from vw.vw_predictor import VWPredictor
-from preds.output_formatter import OutputFormatter
+from prediction.output_formatter import OutputFormatter
 from config import load_config
 
 

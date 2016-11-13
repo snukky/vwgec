@@ -9,13 +9,13 @@ from csets.cset import CSetPair
 from csets.cword_finder import CWordFinder
 from csets.cword_reader import CWordReader
 
-from feats.feature_extractor import FeatureExtractor
+from features.feature_extractor import FeatureExtractor
 
-from preds.prediction_iterator import PredictionIterator
-from preds.output_formatter import OutputFormatter
+from prediction.prediction_iterator import PredictionIterator
+from prediction.output_formatter import OutputFormatter
 
-from eval.grid_search import GridSearch
-from eval.m2 import M2Evaluator
+from evaluation.grid_search import GridSearch
+from evaluation.m2 import M2Evaluator
 
 from logger import log
 

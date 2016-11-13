@@ -3,10 +3,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from feats.feature_vector import FeatureVector
-from feats.base_feature import BaseFeature
-from feats.source import *
-from feats.target import *
+from features.feature_vector import FeatureVector
+from features.base_feature import BaseFeature
+from features.source import *
+from features.target import *
 
 from logger import log
 

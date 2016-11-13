@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from preds.prediction_iterator import LDFIterator
+from prediction.prediction_iterator import LDFIterator
 from logger import log
 
 

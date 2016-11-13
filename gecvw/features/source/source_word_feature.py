@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from feats.base_feature import BaseFeature
+from features.base_feature import BaseFeature
 from logger import log
 
 
