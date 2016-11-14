@@ -1,7 +1,6 @@
 import os
 import shutil
 
-from config import SCRIPTS_DIR
 from logger import log
 
 

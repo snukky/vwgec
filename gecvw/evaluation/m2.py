@@ -1,7 +1,7 @@
 import cmd
-import config
 
 import utils.cmd
+from settings import SCRIPTS_DIR
 from logger import log
 
 
@@ -35,7 +35,7 @@ class M2Evaluator(object):
         # script which cause the propagation of forked threads to this script.
         result = cmd.run(
             "python {scripts}/m2scorer_fork --forks {threads} {txt} {m2}" \
-                .format(scripts=config.SCRIPTS_DIR, threads=4, txt=txt_file, m2=m2_file))
+                .format(scripts=SCRIPTS_DIR, threads=4, txt=txt_file, m2=m2_file))
 
         # Currently I'm using Marcin's C++ implementation of m2scorer.
         # result = cmd.run("{scorer} --candidate {txt} --reference {m2}" \
