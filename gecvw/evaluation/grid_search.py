@@ -11,9 +11,9 @@ from logger import log
 
 
 class GridSearch(object):
-    def __init__(self, evaluator, preds, log_io=None):
+    def __init__(self, evaluator, pred_file, log_io=None):
         self.evaluator = evaluator
-        self.preds = preds
+        self.pred_file = pred_file
         self.log = log_io
 
     def run(self, steps=10, levels=1, favor='min'):
@@ -43,16 +43,16 @@ class GridSearch(object):
         return (best, best_scores[best])
 
     def __param_range(self, steps):
-        self.preds.seek(0)
-        iterator = LDFIterator(self.preds)
+        with open(self.pred_file) as pred_io:
+            iterator = LDFIterator(pred_io)
 
-        min_thr, max_thr = float('inf'), float('-inf')
-        for values in iterator:
-            for _, value in values:
-                if min_thr > value:
-                    min_thr = value
-                if max_thr < value:
-                    max_thr = value
+            min_thr, max_thr = float('inf'), float('-inf')
+            for values in iterator:
+                for _, value in values:
+                    if min_thr > value:
+                        min_thr = value
+                    if max_thr < value:
+                        max_thr = value
 
         log.debug("found min/max params: {}/{}".format(min_thr, max_thr))
         step = (max_thr - min_thr) / float(steps)

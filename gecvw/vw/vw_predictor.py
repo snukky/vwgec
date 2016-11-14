@@ -1,15 +1,16 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from gecvw.settings import config
 from utils import cmd
 from logger import log
 
 
 class VWPredictor(object):
-    def __init__(self, vw):
-        self.vw = vw
+    def __init__(self, vw=None):
+        self.vw = vw or config['vowpal-wabbit']
 
     def run(self, model, data, predictions, options=" -q st"):
         if not os.path.exists(model):

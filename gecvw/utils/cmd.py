@@ -18,7 +18,9 @@ def wc(file):
 
 
 def ln(file, link):
-    run("ln -s {} {}".format(os.path.abspath(file), os.path.abspath(link)))
+    link_abs = os.path.abspath(link)
+    if not os.path.exists(link_abs):
+        run("ln -s {} {}".format(os.path.abspath(file), link_abs))
 
 
 def wdiff(file1, file2, output_file=None):

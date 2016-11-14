@@ -8,6 +8,7 @@ from features.base_feature import BaseFeature
 from features.source import *
 from features.target import *
 
+from settings import config
 from logger import log
 
 

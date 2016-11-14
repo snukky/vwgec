@@ -1,15 +1,15 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from gecvw.settings import config
 from utils import cmd
-from settings import config
 from logger import log
 
 
 class VWTrainer(object):
-    def __init__(self, vw):
+    def __init__(self, vw=None):
         self.vw = vw or config['vowpal-wabbit']
 
     def train(self, model, data, options=" --csoaa_ldf m -q st"):

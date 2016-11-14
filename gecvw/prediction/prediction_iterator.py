@@ -35,21 +35,23 @@ class LDFIterator(Iterator):
 
 
 class PredictionIterator(object):
-    def __init__(self, text, cwords, preds, cset):
-        self.text = text
-        self.cwords = open(cwords)
-        self.preds = open(preds)
+    def __init__(self, txt_file, cword_file, pred_file, cset):
+        self.txt_file = txt_file
+        self.cword_file = cword_file
+        self.pred_file = pred_file
         self.cset = cset
 
     def __iter__(self):
-        cword_reader = CWordReader(self.cwords)
-        preds_iter = LDFIterator(self.preds, self.cset)
+        pred_io = open(self.pred_file)
+        txt_io = open(self.txt_file)
+        cword_reader = CWordReader(self.cword_file)
+        preds_iter = LDFIterator(pred_io, self.cset)
 
         sid, cword = cword_reader.next()
         preds = preds_iter.next()
 
         n = 0
-        for line in self.text:
+        for line in txt_io:
             data = []
             while sid == n:
                 data.append((cword, preds))
@@ -61,5 +63,5 @@ class PredictionIterator(object):
             yield (n, line.split("\t", 1)[0], data)
             n += 1
 
-        self.cwords.close()
-        self.preds.close()
+        txt_io.close()
+        pred_io.close()

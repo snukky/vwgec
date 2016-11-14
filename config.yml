@@ -31,6 +31,7 @@ costs:
     abc: 1.0
 
 # data
-train-sets:
-dev-sets:
-test-sets:
+train-set: /home/romang/projects/gecvw/data/alice.txt
+dev-set: /home/romang/projects/gecvw/data/test.artordet.m2
+test-sets: 
+    - /home/romang/projects/gecvw/data/test.artordet.m2

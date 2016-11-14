@@ -20,9 +20,9 @@ def main():
 def parse_user_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('input', nargs='?', type=argparse.FileType('r'),
+    parser.add_argument('input', nargs='?', #type=argparse.FileType('r'),
         default=sys.stdin, help="input sentences")
-    parser.add_argument('output', nargs='?', type=argparse.FileType('r'),
+    parser.add_argument('output', nargs='?', #type=argparse.FileType('r'),
         default=sys.stdout, help="output features")
 
     parser.add_argument('-1', '--source-cset',
@@ -30,7 +30,7 @@ def parse_user_args():
     parser.add_argument('-2', '--target-cset',
         help="target confusion set")
 
-    parser.add_argument('-c', '--cwords', type=argparse.FileType('w'),
+    parser.add_argument('-c', '--cwords', #type=argparse.FileType('w'),
         required=True, help="file to store found confusion words")
     parser.add_argument('-f', '--config', required=True,
         help="configuration file")

@@ -11,7 +11,7 @@ from logger import log
 
 class OutputFormatter(object):
     def __init__(self, output, threshold=0.0, restore_case=True, debug=False):
-        self.output = output
+        self.output = open(output, 'w')
         self.threshold = 0.0
         self.restore_case = restore_case
         self.debug = debug
