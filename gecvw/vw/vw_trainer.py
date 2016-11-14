@@ -4,12 +4,13 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 from utils import cmd
+from settings import config
 from logger import log
 
 
 class VWTrainer(object):
     def __init__(self, vw):
-        self.vw = vw
+        self.vw = vw or config['vowpal-wabbit']
 
     def train(self, model, data, options=" --csoaa_ldf m -q st"):
         if os.path.exists(model):

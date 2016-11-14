@@ -15,7 +15,6 @@ def load_annotation(gold_file):
     puffer = fgold.read()
     fgold.close()
     puffer = puffer.decode('utf8')
-    #print puffer
     for item in paragraphs(puffer.splitlines(True)):
         item = item.splitlines(False)
         sentence = [line[2:].strip() for line in item if line.startswith('S ')]
@@ -57,10 +56,10 @@ def f1_suffstats(candidate, source, gold_edits, max_unchanged_words=2, beta = 0.
     stat_correct = 0.0
     stat_proposed = 0.0
     stat_gold = 0.0
-
+    
     candidate_tok = candidate.split()
     source_tok = source.split()
-
+    
     lmatrix1, backpointers1 = levenshtein_matrix(source_tok, candidate_tok, 1, 1, 1)
     lmatrix2, backpointers2 = levenshtein_matrix(source_tok, candidate_tok, 1, 1, 2)
 
@@ -76,7 +75,7 @@ def f1_suffstats(candidate, source, gold_edits, max_unchanged_words=2, beta = 0.
         print "backpointers 2:", backpointers2
         print "edits (w/o transitive arcs):", edits
     V, E, dist, edits = transitive_arcs(V, E, dist, edits, max_unchanged_words, very_verbose)
-
+    
     # Find measures maximizing current cumulative F1; local: curent annotator only
     sqbeta = beta * beta
     chosen_ann = -1
@@ -103,7 +102,7 @@ def f1_suffstats(candidate, source, gold_edits, max_unchanged_words=2, beta = 0.
         if ignore_whitespace_casing:
             editSeq = filter(lambda x : not equals_ignore_whitespace_casing(x[2], x[3]), editSeq)
         correct = matchSeq(editSeq, gold, ignore_whitespace_casing, verbose)
-
+        
         # local cumulative counts, P, R and F1
         stat_correct_local = stat_correct + len(correct)
         stat_proposed_local = stat_proposed + len(editSeq)
@@ -138,12 +137,11 @@ def f1_suffstats(candidate, source, gold_edits, max_unchanged_words=2, beta = 0.
             print "f_%.1f         :" % beta, f1_local
             print "-------------------------------------------"
     if verbose:
-        print ">> Chosen Annotator:", chosen_ann
+        print ">> Chosen Annotator for line", i, ":", chosen_ann
         print ""
     stat_correct += argmax_correct
     stat_proposed += argmax_proposed
     stat_gold += argmax_gold
-
     return (stat_correct, stat_proposed, stat_gold)
 
 def comp_p(a, b):
@@ -217,7 +215,7 @@ def best_edit_seq_bf(V, E, dist, edits, verby_verbose=False):
 def set_weights(E, dist, edits, gold_edits, verbose=False, very_verbose=False):
     EPSILON = 0.001
     if very_verbose:
-        print "set weights of edges()",
+        print "set weights of edges()", 
         print "gold edits :", gold_edits
 
     gold_set = deepcopy(gold_edits)
@@ -239,7 +237,7 @@ def set_weights(E, dist, edits, gold_edits, verbose=False, very_verbose=False):
         if (s, e) not in G:
             G[(s,e)] = []
         G[(s,e)].append(gold)
-
+    
     for k in sorted(M.keys()):
         M[k] = sorted(M[k])
 
@@ -257,9 +255,9 @@ def set_weights(E, dist, edits, gold_edits, verbose=False, very_verbose=False):
                 thisEdit = edits[edge]
                 # only check start offset, end offset, original string, corrections
                 if very_verbose:
-                    print "set weights of edge", edge
+                    print "set weights of edge", edge 
                     print "edit  =", thisEdit
-
+                
                 cur_gold = []
                 if cur == lptr:
                     cur_gold = range(g_lptr, g_rptr+1)
@@ -284,7 +282,7 @@ def set_weights(E, dist, edits, gold_edits, verbose=False, very_verbose=False):
                             #g_rptr -= 1 # why?
                             g_rptr = i - 1
                         break
-
+                        
                 if not hasGoldMatch and thisEdit[0] != 'noop':
                     retdist[edge] += EPSILON
                 if hasGoldMatch:
@@ -314,7 +312,7 @@ def set_weights(E, dist, edits, gold_edits, verbose=False, very_verbose=False):
                 hasGoldMatch = False
                 thisEdit = edits[edge]
                 if very_verbose:
-                    print "set weights of edge", edge
+                    print "set weights of edge", edge 
                     print "edit  =", thisEdit
                 for gold in G[k]:
                     if thisEdit[1] == gold[0] and \
@@ -398,11 +396,11 @@ def transitive_arcs(V, E, dist, edits, max_unchanged_words=2, very_verbose=False
                     eij = merge_edits(eik, ekj)
                     if eij[-1] <= max_unchanged_words:
                         if very_verbose:
-                            print " add new arcs v_i -> v_j:", eij
+                            print " add new arcs v_i -> v_j:", eij 
                         E.append((vi, vj))
                         dist[(vi, vj)] = dik + dkj
                         edits[(vi, vj)] = eij
-    # remove noop transitive arcs
+    # remove noop transitive arcs 
     if very_verbose:
         print "-- Remove transitive noop arcs --"
     for edge in E:
@@ -479,8 +477,8 @@ def matchSeq(editSeq, gold_edits, ignore_whitespace_casing= False, verbose=False
                         else:
                             print "*", e
     return m
-
-
+        
+        
 def matchEdit(e, g, ignore_whitespace_casing= False):
     # start offset
     if e[0] != g[0]:
@@ -635,8 +633,8 @@ def levenshtein_matrix(first, second, cost_ins=1, cost_del=1, cost_sub=1):
 def smart_open(fname, mode = 'r'):
     if fname.endswith('.gz'):
         import gzip
-        # Using max compression (9) by default seems to be slow.
-        # Let's try using the fastest.
+        # Using max compression (9) by default seems to be slow.                                
+        # Let's try using the fastest.                                                          
         return gzip.open(fname, mode, 1)
     else:
         return open(fname, mode)
@@ -654,16 +652,16 @@ def paragraphs(lines, is_separator=lambda x : x == '\n', joiner=''.join):
         yield joiner(paragraph)
 
 def uniq(seq, idfun=None):
-    # order preserving
+    # order preserving                                                                          
     if idfun is None:
         def idfun(x): return x
     seen = {}
     result = []
     for item in seq:
         marker = idfun(item)
-        # in old Python versions:
-        # if seen.has_key(marker)
-        # but in new ones:
+        # in old Python versions:                                                               
+        # if seen.has_key(marker)                                                               
+        # but in new ones:                                                                      
         if marker in seen: continue
         seen[marker] = 1
         result.append(item)
@@ -671,18 +669,16 @@ def uniq(seq, idfun=None):
 
 class M2ObjType:
     pass
-
+    
 class M2Obj(M2ObjType):
 
     def __init__(self, m2_path, beta=1.0, max_unchanged_words=2,
-                 ignore_whitespace_casing=False, verbose=False, very_verbose=False):
+                 ignore_whitespace_casing=False):
         self.m2_path = m2_path
         self.beta = beta
         self.max_unchanged_words = max_unchanged_words
         self.ignore_whitespace_casing = ignore_whitespace_casing
-        self.verbose = verbose
-        self.very_verbose = very_verbose
-
+        
         self.source_sentences, self.gold_edits = load_annotation(m2_path)
 
     def sufstats(self, cand_str, i):
@@ -691,15 +687,11 @@ class M2Obj(M2ObjType):
                                                 self.gold_edits[i],
                                                 self.max_unchanged_words,
                                                 self.beta,
-                                                self.ignore_whitespace_casing,
-                                                self.verbose, self.very_verbose)
-        #print
-        #print "cand: ", cand_str
-        #print "self: ", self.source_sentences[i]
-        #print ("%d\t%d\t%d" % (int(stat_correct), int(stat_proposed), int(stat_gold)))
+                                                self.ignore_whitespace_casing)
+        
         return [int(stat_correct), int(stat_proposed), int(stat_gold)]
-
-
+        
+        
 import tempfile
 import os
 
@@ -714,70 +706,80 @@ def calc_f(stat_correct, stat_proposed, stat_gold, beta):
         r  = stat_correct / float(stat_gold)
     except ZeroDivisionError:
         r = 1.0
-
+        
     try:
         f1 = (1.0 + beta * beta) * p * r / (beta * beta * p + r)
     except ZeroDivisionError:
         f1 = 0.0
-
+        
     return p, r, f1
 
 
 def forker(forks, system_path, m2_path, beta, max_unchanged_words,
-           ignore_whitespace_casing, verbose, very_verbose):
-    m2 = M2Obj(m2_path, beta, max_unchanged_words, ignore_whitespace_casing,
-               verbose, very_verbose)
-
+           ignore_whitespace_casing):
+    m2 = M2Obj(m2_path, beta, max_unchanged_words, ignore_whitespace_casing)
+    
     partitions = [list() for dummy in range(forks)]
     for i, cand_str in enumerate(open(system_path)):
-        partitions[i % forks].append((i, cand_str.decode("utf8")))
-
+        partitions[i % forks].append((i, cand_str))
+    
     temp_files = []
     pids = []
     stat_correct, stat_proposed, stat_gold = 0, 0, 0
     for partition in partitions:
         f = tempfile.TemporaryFile()
         temp_files.append(f)
-
+        
         pid = os.fork()
         if pid != 0:
             pids.append(pid)
         else:
             import warnings
             warnings.filterwarnings("ignore")
-
+            
             for i, cand_str in partition:
                 correct, proposed, gold = m2.sufstats(cand_str, i)
-                #print("%d\t%d\t%d\t%d" % (i,correct, proposed, gold))
                 f.write("%d\t%d\t%d\n" % (correct, proposed, gold))
             f.seek(0)
             sys.exit()
-
+    
     for pid in pids:
         os.waitpid(pid, 0)
-
+            
     for f in temp_files:
         for line in f:
             correct, proposed, gold = (int(i) for i in line.split())
             stat_correct += correct
             stat_proposed += proposed
-            stat_gold += gold
+            stat_gold += gold    
         f.close()
-
+    
     return calc_f(stat_correct, stat_proposed, stat_gold, beta)
 
 
+def m2scorer(txt_file, m2_file,
+             max_unchanged_words=3, beta=0.5, ignore_whitespace_casing=False,
+             forks=cpu_count()):
+    """
+    An interface method for forked version of M^2 scoring script.
+    """
+    return forker(forks, txt_file, m2_file,
+                  beta, max_unchanged_words, ignore_whitespace_casing)
+
+
 if __name__ == "__main__":
-    verbose = False
-    very_verbose = False
     max_unchanged_words = 2
     beta = 0.5
     ignore_whitespace_casing = False
+    verbose = False
+    very_verbose = False
+    forks = cpu_count()
     opts, args = getopt(sys.argv[1:], "v", ["max_unchanged_words=",
                                             "beta=",
                                             "verbose",
                                             "ignore_whitespace_casing",
-                                            "very_verbose"])
+                                            "very_verbose",
+                                            "forks="])
     for o, v in opts:
         if o in ('-v', '--verbose'):
             verbose = True
@@ -789,24 +791,23 @@ if __name__ == "__main__":
             beta = float(v)
         elif o == '--ignore_whitespace_casing':
             ignore_whitespace_casing = True
+        elif o == '--forks':
+            forks = int(v)
         else:
             print >> sys.stderr, "Unknown option :", o
             #print_usage()
             sys.exit(-1)
-
+    
     # starting point
     if len(args) != 2:
         #print_usage()
         sys.exit(-1)
-
+    
     system_file = args[0]
     gold_file = args[1]
 
-    forks = cpu_count()
-
     p, r, f1 = forker(forks, system_file, gold_file,
-                      beta, max_unchanged_words, ignore_whitespace_casing,
-                      verbose, very_verbose)
+                      beta, max_unchanged_words, ignore_whitespace_casing)
 
     print("Precision   : %.4f" % p)
     print("Recall      : %.4f" % r)

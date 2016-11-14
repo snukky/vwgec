@@ -1,10 +1,17 @@
 # paths
-vowpalwabbit: /home/romang/tools/vowpal_wabbit
+vowpal-wabbit: /home/romang/tools/vowpal_wabbit
 mosesdecoder: /home/romang/tools/mosesdecoder
+stanford-pos-tagger: /home/romang/tools/stanford-pos-tagger
 
 # confusion sets
 source-cset: a,an,the,
 target-cset: a,an,the,
+
+# factors
+word-classes: /home/romang/data/wc.classes.gz
+factors:
+    1: 'pos'
+    2: 'awc'
 
 # features
 features:
@@ -22,3 +29,8 @@ costs:
     abb: 0.0
     aba: 4.0
     abc: 1.0
+
+# data
+train-sets:
+dev-sets:
+test-sets:

@@ -21,24 +21,24 @@ from settings import config
 from logger import log
 
 
-def load_config(config_file, updated_configs):
+def load_config(config_file, updated_configs={}):
     settings.config.load_config(config_file, updated_configs)
 
 
-def find_confusion_words(input, cwords, train=False):
-    log.info("Find confusion words in {}".format(input.name))
+# def find_confusion_words(input, cwords, train=False):
+    # log.info("Find confusion words in {}".format(input.name))
 
-    csets = CSetPair(config['source-cset'], config['target-cset'])
-    finder = CWordFinder(csets, train)
-    reader = CWordReader(cwords)
+    # csets = CSetPair(config['source-cset'], config['target-cset'])
+    # finder = CWordFinder(csets, train)
+    # reader = CWordReader(cwords)
 
-    count = 0
-    for sid, line in enumerate(input):
-        for cword in finder.find_confusion_words(line):
-            reader.format(sid, cword)
-            count += 1
+    # count = 0
+    # for sid, line in enumerate(input):
+        # for cword in finder.find_confusion_words(line):
+            # reader.format(sid, cword)
+            # count += 1
 
-    log.info("Found {} confusion words".format(count))
+    # log.info("Found {} confusion words".format(count))
 
 
 def extract_features(input, output, cwords, train=False):
@@ -73,6 +73,6 @@ def apply_predictions(input, output, cwords, preds):
 
 
 def run_grid_search(m2_file, cwords, preds):
-    evaluator = M2Evaluator(m2_file, cwords)
+    evaluator = M2Evaluator(m2_file, cwords, preds)
     searcher = GridSearch(evaluator, preds)
     return searcher.run()
