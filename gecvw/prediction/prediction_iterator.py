@@ -6,6 +6,7 @@ from collections import Iterator
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from csets.cset import CSet
 from csets.cword_reader import CWordReader
 from utils.softmax import softmax
 from logger import log
@@ -35,23 +36,31 @@ class LDFIterator(Iterator):
 
 
 class PredictionIterator(object):
-    def __init__(self, txt_file, cword_file, pred_file, cset):
-        self.txt_file = txt_file
-        self.cword_file = cword_file
-        self.pred_file = pred_file
-        self.cset = cset
+    def __init__(self, txt_io, cword_io, pred_io, cset, open_files=False):
+        self.txt_io = txt_io
+        self.cword_io = cword_io
+        self.pred_io = pred_io
+        self.cset = CSet(cset) if cset is not None else None
+        self.open_files = open_files
 
     def __iter__(self):
-        pred_io = open(self.pred_file)
-        txt_io = open(self.txt_file)
-        cword_reader = CWordReader(self.cword_file)
-        preds_iter = LDFIterator(pred_io, self.cset)
+        if self.open_files:
+            self.txt_io = open(self.txt_io)
+            self.cword_io = open(self.cword_io)
+            self.pred_io = open(self.pred_io)
+        else:
+            self.txt_io.seek(0)
+            self.cword_io.seek(0)
+            self.pred_io.seek(0)
+
+        cword_reader = CWordReader(self.cword_io)
+        preds_iter = LDFIterator(self.pred_io, self.cset)
 
         sid, cword = cword_reader.next()
         preds = preds_iter.next()
 
         n = 0
-        for line in txt_io:
+        for line in self.txt_io:
             data = []
             while sid == n:
                 data.append((cword, preds))
@@ -63,5 +72,10 @@ class PredictionIterator(object):
             yield (n, line.split("\t", 1)[0], data)
             n += 1
 
-        txt_io.close()
-        pred_io.close()
+        if self.open_files:
+            self.txt_io.close()
+            self.txt_io = self.txt_io.name
+            self.cword_io.close()
+            self.cword_io = self.cword_io.name
+            self.pred_io.close()
+            self.pred_io = self.pred_io.name

@@ -13,12 +13,13 @@ from gecvw.settings import config
 from gecvw.logger import log
 from gecvw.utils import cmd
 
-from gecvw import extract_features
+import gecvw.features
+import gecvw.prediction
+import gecvw.evaluation
+
 from gecvw.vw.vw_trainer import VWTrainer
 from gecvw.vw.vw_predictor import VWPredictor
 from gecvw.evaluation import maxmatch
-from gecvw import run_grid_search
-from gecvw import apply_predictions
 
 
 def main():
@@ -37,74 +38,84 @@ def main():
     model = cmd.filepath(args.work_dir, config['model']) + '.vw'
     if not os.path.exists(model):
         train_set = cmd.filepath(args.work_dir, 'train')
-        train_txt = train_set + '.txt'
-        train_feats = train_set + '.feats'
-        train_cword = train_set + '.cword'
+        cmd.ln(config['train-set'], train_set + '.txt')
 
-        cmd.ln(config['train-set'], train_txt)
         if not config['factors']:
             pass  # add factors
 
-        extract_features(train_txt, train_feats, train_cword, train=True)
-        VWTrainer().train(model, train_feats)
+        extract_features(train_set, train=True)
+        VWTrainer().train(model, train_set + '.feats')
 
     thr_file = cmd.filepath(args.work_dir, 'threshold')
     if not os.path.exists(thr_file):
         dev_set = cmd.filepath(args.work_dir, 'dev')
-        dev_m2 = dev_set + '.m2'
-        dev_txt = dev_set + '.txt'
-        dev_feats = dev_set + '.feats'
-        dev_cword = dev_set + '.cword'
-        dev_pred = dev_set + '.pred'
+        cmd.ln(config['dev-set'], dev_set + '.m2')
 
-        cmd.ln(config['dev-set'], dev_m2)
-        maxmatch.parallelize_m2(dev_m2, dev_txt)
+        maxmatch.parallelize_m2(dev_set + '.m2', dev_set + '.txt')
 
         if not config['factors']:
             pass  # add factors
 
-        extract_features(dev_txt, dev_feats, dev_cword, train=False)
-        VWPredictor().run(model, dev_feats, dev_pred)
+        extract_features(dev_set, train=False)
+        train_vw(model, dev_set)
 
         search_dir = args.work_dir + '/grid_search'
         if not os.path.exists(search_dir):
             os.makedirs(search_dir)
 
-        threshold = run_grid_search(
-            dev_m2, dev_cword, dev_pred, work_dir=search_dir)
-
+        threshold = search_threshold(dev_set, work_dir=search_dir)
         with open(thr_file, 'w') as thr_io:
             thr_io.write("{}".format(threshold[0]))
     else:
         with open(thr_file) as thr_io:
             threshold = float(thr_io.read().strip())
 
-    for m2 in config['test-sets']:
-        test_set = cmd.filepath(args.work_dir, 'test')
-        test_eval = test_set + '.eval'
+    for name, m2 in config['test-sets'].iteritems():
+        test_set = cmd.filepath(args.work_dir, name)
 
-        if os.path.exists(test_eval):
+        if os.path.exists(test_set + '.eval'):
             continue
 
-        test_out = test_set + '.out'
-        test_m2 = test_set + '.m2'
-        test_txt = test_set + '.txt'
-        test_feats = test_set + '.feats'
-        test_cword = test_set + '.cword'
-        test_pred = test_set + '.pred'
-
-        cmd.ln(m2, test_m2)
-        maxmatch.parallelize_m2(test_m2, test_txt)
+        cmd.ln(m2, test_set + '.m2')
+        maxmatch.parallelize_m2(test_set + '.m2', test_set + '.txt')
 
         if not config['factors']:
             pass  # add factors
 
-        extract_features(test_txt, test_feats, test_cword, train=False)
-        VWPredictor().run(model, test_feats, test_pred)
+        extract_features(test_set, train=False)
+        run_vw(model, test_set)
+        apply_predictions(test_set)
 
-        apply_predictions(test_txt, test_out, test_cword, test_pred)
-        score = maxmatch.evaluate_m2(test_out, test_m2)
+        score = maxmatch.evaluate_m2(test_set + '.out', test_set + '.m2')
         log.info("Results for {}: {}".format(m2, score))
+
+
+def extract_features(data, train=False):
+    with open(data + '.txt') as txt, \
+         open(data + '.feats', 'w') as feat, \
+         open(data + '.cword', 'w') as cword:
+        gecvw.features.extract_features(txt, feat, cword, train=train)
+
+
+def train_vw(model, data):
+    VWPredictor().run(model, data + '.feats', data + '.pred')
+
+
+def search_threshold(data, work_dir):
+    return gecvw.evaluation.run_grid_search(
+        data + '.m2', data + '.cword', data + '.pred', work_dir=work_dir)
+
+
+def apply_predictions(data):
+    with open(data + '.txt') as txt, \
+            open(data + '.out', 'w') as out, \
+            open(data + '.cword', 'r') as cword, \
+            open(data + '.pred', 'r') as pred:
+        gecvw.prediction.apply_predictions(txt, out, cword, pred)
+
+
+def run_vw(model, data):
+    VWPredictor().run(model, data + '.feats', data + '.pred')
 
 
 def parse_user_args():

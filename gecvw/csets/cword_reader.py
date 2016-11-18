@@ -14,8 +14,8 @@ class CWordReader(object):
 
     NUM_FIELDS = 7
 
-    def __init__(self, cword_file, mode='r'):
-        self.stream = open(cword_file, mode)
+    def __init__(self, stream):
+        self.stream = stream
 
     def __iter__(self):
         for line in self.stream:

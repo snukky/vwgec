@@ -8,12 +8,14 @@ import argparse
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import gecvw
+import gecvw.prediction
 
 
 def main():
     args = parse_user_args()
     gecvw.load_config(args.config)
-    gecvw.apply_predictions(args.input, args.output, args.cwords, args.preds)
+    gecvw.prediction.apply_predictions(args.input, args.output, args.cword,
+                                       args.pred)
 
 
 def parse_user_args():
@@ -21,13 +23,13 @@ def parse_user_args():
 
     parser.add_argument('input', nargs='?', type=argparse.FileType('r'),
         default=sys.stdin, help="input sentences")
-    parser.add_argument('output', nargs='?', type=argparse.FileType('r'),
-        default=sys.stdout, help="output file")
+    parser.add_argument('output', nargs='?', type=argparse.FileType('w'),
+        default=sys.stdout, help="output sentences")
 
-    parser.add_argument('-p', '--preds', required=True,
-        help="prediction file")
-    parser.add_argument('-c', '--cwords', required=True,
-        help="confusion words file")
+    parser.add_argument('-c', '--cword', type=argparse.FileType('r'),
+        required=True, help="file with confusion words")
+    parser.add_argument('-p', '--pred', type=argparse.FileType('r'),
+        required=True, help="file with predictions")
     parser.add_argument('-f', '--config', required=True,
         help="configuration file")
 
