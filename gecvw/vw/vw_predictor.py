@@ -12,7 +12,7 @@ class VWPredictor(object):
     def __init__(self, vw=None):
         self.vw = vw or config['vowpal-wabbit']
 
-    def run(self, model, data, predictions, options=" -q st"):
+    def run(self, model, data, predictions, options=""):
         if not os.path.exists(model):
             log.error("model does not exist: {}".format(model))
         if not os.path.exists(data):
