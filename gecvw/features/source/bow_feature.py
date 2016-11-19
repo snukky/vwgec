@@ -9,8 +9,7 @@ from logger import log
 
 class BOWFeature(BaseFeature):
     def __init__(self, window=3, factor=0):
-        self.window = window
-        self.factor = factor
+        super(BOWFeature, self).__init__(window=window, factor=factor)
 
     def extract(self, cword, csets, sentence, vector):
         left_cntx, right_cntx = self.both_contexts(cword.pos, sentence)

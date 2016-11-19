@@ -16,6 +16,7 @@ from gecvw.utils import cmd
 import gecvw.features
 import gecvw.prediction
 import gecvw.evaluation
+import gecvw.taggers
 
 from gecvw.vw.vw_trainer import VWTrainer
 from gecvw.vw.vw_predictor import VWPredictor
@@ -47,10 +48,7 @@ def main():
         train_set = args.work_dir + '/train/train'
         cmd.ln(config['train-set'], train_set + '.txt')
 
-        if not config['factors']:
-            pass  # add factors
-
-        extract_features(train_set, train=True)
+        extract_features(train_set, train=True, factors=config['factors'])
         VWTrainer().train(model, train_set + '.feats')
 
     thr_value = read_threshold(args.work_dir)
@@ -61,10 +59,7 @@ def main():
         cmd.ln(config['dev-set'], dev_set + '.m2')
         parallelize_m2(dev_set)
 
-        if not config['factors']:
-            pass  # add factors
-
-        extract_features(dev_set, train=False)
+        extract_features(dev_set, train=False, factors=config['factors'])
         train_vw(model, dev_set)
 
         thr_value, _ = search_threshold(
@@ -81,10 +76,7 @@ def main():
         cmd.ln(m2, test_set + '.m2')
         parallelize_m2(test_set)
 
-        if not config['factors']:
-            pass  # add factors
-
-        extract_features(test_set, train=False)
+        extract_features(test_set, train=False, factors=config['factors'])
         run_vw(model, test_set)
         apply_predictions(test_set)
 
@@ -92,11 +84,20 @@ def main():
         log.info("Results for {}: {}".format(m2, score))
 
 
-def extract_features(data, train=False):
+def extract_features(data, train=False, factors={}):
+    needed_factors = factors.keys()
+    if train:
+        needed_factors = [fn for fn, ff in factors.iteritems() if not ff]
+    if needed_factors:
+        new_factors = gecvw.taggers.factorize_file(data + '.txt',
+                                                   needed_factors)
+        factors.update(new_factors)
+
     with open(data + '.txt') as txt, \
          open(data + '.feats', 'w') as feat, \
          open(data + '.cword', 'w') as cword:
-        gecvw.features.extract_features(txt, feat, cword, train=train)
+        gecvw.features.extract_features(
+            txt, feat, cword, train=train, factor_files=factors)
 
 
 def train_vw(model, data):

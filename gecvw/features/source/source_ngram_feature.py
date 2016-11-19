@@ -13,6 +13,7 @@ class SourceNGramFeature(BaseFeature):
         self.factor = factor
 
     def extract(self, cword, csets, sentence, vector):
+        sentence = sentence[self.factor]
         for num_words_after in xrange(self.window + 1):
             num_words_before = self.window - num_words_after
 

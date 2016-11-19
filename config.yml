@@ -3,22 +3,26 @@ vowpal-wabbit: /home/romang/tools/vowpal_wabbit
 mosesdecoder: /home/romang/tools/mosesdecoder
 stanford-pos-tagger: /home/romang/tools/stanford-pos-tagger
 
+# common settings
+threads: 1
+
 # confusion sets
 source-cset: a,an,the,
 target-cset: a,an,the,
 
 # factors
-word-classes: /home/romang/data/wc.classes.gz
+word-classes: /home/romang/projects/gecvw/data/wc.classes.gz
 factors:
-    1: 'pos'
-    2: 'awc'
+    wc:
 
 # features
 features:
-    SourceWordFeature:
-    SourceNGramFeature:
-    TargetWordFeature:
-    BOWFeature:
+    - SourceWordFeature
+    - SourceWordFeature:
+        factor: 2
+    - SourceNGramFeature
+    - TargetWordFeature
+    - BOWFeature:
         window: 4
 
 # training

@@ -33,15 +33,22 @@ class FeatureExtractor(object):
         feature_classes = {cls.__name__: cls
                            for cls in self.__get_subclasses(BaseFeature)}
 
-        for feat in features:
-            if feat in feature_classes:
-                kwargs = features[feat] or {}
-                log.info("Initialize {} {}".format(feat, kwargs))
-                obj = feature_classes[feat](**kwargs)
+        for feature in features:
+            if isinstance(feature, dict):
+                klass = feature.keys()[0]
+                kwargs = feature[klass] or {}
+            else:
+                klass = feature
+                kwargs = {}
+
+            if klass in feature_classes:
+                log.info("Initialize {} {}".format(klass, kwargs))
+                obj = feature_classes[klass](**kwargs)
                 self.features.append(obj)
                 self.factors |= set([obj.factor])
             else:
-                log.warn("Unrecognized feature: {}".format(feat))
+                log.warn("Unrecognized feature: {}".format(klass))
+        log.info("Required factors: {}".format(list(self.factors)))
 
     def __get_subclasses(self, cls):
         subclasses = []

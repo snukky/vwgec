@@ -3,16 +3,16 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from gecvw.settings import config
 from utils import cmd
-from settings import config
 from logger import log
 
 
 class StanfordPOSTagger():
     def __init__(self, threads=None):
-        self.tagger_dir = config['paths']['stanford-pos-tagger']
+        self.tagger_dir = config['stanford-pos-tagger']
         self.separator = '|'
         self.threads = threads or config['threads']
 

@@ -5,9 +5,9 @@ import sys
 import gzip
 import io
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from settings import config
+from gecvw.settings import config
 from logger import log
 
 

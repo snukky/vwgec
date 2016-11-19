@@ -9,6 +9,12 @@ def run(cmd):
     return os.popen(cmd).read()
 
 
+def cut(input_file, output_file, field=0):
+    with open(input_file) as input_io, open(output_file, 'w') as output_io:
+        for line in input_io:
+            output_io.write(line.rstrip().split("\t")[field] + "\n")
+
+
 def wc(file):
     if not os.path.exists(file) or os.path.isdir(file):
         return None
@@ -39,11 +45,9 @@ def wdiff(file1, file2, output_file=None):
     return output_file
 
 
-def cut(file, col_file=None, col=1):
-    if not col_file:
-        col_file = '{}.col{}'.format(file, col)
-    run("cut -f{} {} > {}".format(col, file, col_file))
-    return col_file
+def is_parallel(file):
+    with open(file) as file_io:
+        return "\t" in file_io.next().strip()
 
 
 def filepath(dir, file):
