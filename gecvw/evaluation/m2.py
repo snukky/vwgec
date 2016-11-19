@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from gecvw.settings import config
-from prediction.prediction_iterator import PredictionIterator
+from prediction.prediction_reader import PredictionReader
 from prediction.output_formatter import OutputFormatter
 
 from evaluation import maxmatch
@@ -44,7 +44,7 @@ class M2Evaluator(object):
         return scores
 
     def apply_predictions(self, txt_file, out_file, cword_file, pred_file):
-        pred_iter = PredictionIterator(
+        pred_iter = PredictionReader(
             txt_file, cword_file, pred_file, cset=self.cset, open_files=True)
 
         out_io = open(out_file, 'w')

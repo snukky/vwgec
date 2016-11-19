@@ -35,7 +35,7 @@ class LDFIterator(Iterator):
         return float(line.rstrip().rsplit(":", 1)[-1])
 
 
-class PredictionIterator(object):
+class PredictionReader(object):
     def __init__(self, txt_io, cword_io, pred_io, cset, open_files=False):
         self.txt_io = txt_io
         self.cword_io = cword_io
