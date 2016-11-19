@@ -8,9 +8,8 @@ from logger import log
 
 
 class SourceNGramFeature(BaseFeature):
-    def __init__(self, window=3, factor=0):
-        self.window = window
-        self.factor = factor
+    def __init__(self, size=3, factor=0):
+        super(SourceNGramFeature, self).__init__(window=size, factor=factor)
 
     def extract(self, cword, csets, sentence, vector):
         sentence = sentence[self.factor]

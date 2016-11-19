@@ -15,8 +15,13 @@ def main():
     args = parse_user_args()
     gecvw.load_config(args.config, {'source-cset': args.source_cset,
                                     'target-cset': args.target_cset})
-    gecvw.features.extract_features(args.input, args.output, args.cwords,
-                                    args.train)
+    gecvw.features.extract_features(
+        args.input,
+        args.output,
+        args.cwords,
+        train=args.train,
+        factor_files={'pos': args.pos,
+                      'wc': args.wc})
 
 
 def parse_user_args():
@@ -38,6 +43,9 @@ def parse_user_args():
         help="configuration file")
     parser.add_argument('-t', '--train', action='store_true',
         help="turn on train mode")
+
+    parser.add_argument('--pos', help="file with POS factor")
+    parser.add_argument('--wc', help="file with WC factor")
 
     return parser.parse_args()
 
