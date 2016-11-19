@@ -5,6 +5,7 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from gecvw.settings import config
 from logger import log
 
 DEFAULT_COSTS = {'aaa': 0.0, 'aab': 1.0, 'abb': 0.0, 'aba': 4.0, 'abc': 1.0}
@@ -13,7 +14,7 @@ DEFAULT_COSTS = {'aaa': 0.0, 'aab': 1.0, 'abb': 0.0, 'aba': 4.0, 'abc': 1.0}
 class FeatureVector(object):
     def __init__(self, tgt_cset, costs={}):
         self.cset = tgt_cset
-        self.costs = costs or DEFAULT_COSTS
+        self.costs = costs or config['costs'] or DEFAULT_COSTS
         self.src_feats = []
         self.tgt_feats = {cw: list() for cw in self.cset}
 
@@ -24,11 +25,14 @@ class FeatureVector(object):
         self.tgt_feats[tgt].append(self.escape_special_chars(feature))
 
     def format(self, source, target):
-        text = "shared |s {} {}\n".format(source, ' '.join(self.src_feats))
+        src_feats = self.__unique_elements(self.src_feats)
+        text = "shared |s {} {}\n".format(source, ' '.join(src_feats))
+
         for candidate, features in self.tgt_feats.iteritems():
+            tgt_feats = self.__unique_elements(features)
             cost = self.get_cost(source, target, candidate)
             text += "1111:{} |t {} {}\n".format(cost, candidate,
-                                                ' '.join(features))
+                                                ' '.join(tgt_feats))
         self.src_feats = []
         self.tgt_feats = {cw: list() for cw in self.cset}
         return text + "\n"
@@ -45,3 +49,7 @@ class FeatureVector(object):
         elif source == candidate:
             return self.costs['aba']
         return self.costs['abc']
+
+    def __unique_elements(self, seq):
+        seen = set()
+        return [x for x in seq if not (x in seen or seen.add(x))]
