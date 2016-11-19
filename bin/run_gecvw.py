@@ -16,7 +16,7 @@ from gecvw.utils import cmd
 import gecvw.features
 import gecvw.prediction
 import gecvw.evaluation
-import gecvw.taggers
+import gecvw.factors
 
 from gecvw.vw.vw_trainer import VWTrainer
 from gecvw.vw.vw_predictor import VWPredictor
@@ -89,7 +89,7 @@ def extract_features(data, train=False, factors={}):
     if train:
         needed_factors = [fn for fn, ff in factors.iteritems() if not ff]
     if needed_factors:
-        new_factors = gecvw.taggers.factorize_file(data + '.txt',
+        new_factors = gecvw.factors.factorize_file(data + '.txt',
                                                    needed_factors)
         factors.update(new_factors)
 

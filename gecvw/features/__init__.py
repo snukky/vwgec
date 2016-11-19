@@ -4,17 +4,11 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from gecvw.settings import config
-
 from csets.cset import CSetPair
 from csets.cword_finder import CWordFinder
 from csets.cword_reader import CWordReader
-
 from features.feature_extractor import FeatureExtractor
-
-from taggers.pos_tagger import StanfordPOSTagger
-from taggers.wc_tagger import WordClassTagger
-from taggers import FACTORS
-
+from factors import FACTORS
 from logger import log
 
 
