@@ -21,15 +21,20 @@ from gecvw.vw.vw_trainer import VWTrainer
 from gecvw.vw.vw_predictor import VWPredictor
 from gecvw.evaluation import maxmatch
 
+THRESHOLD_FILE = 'threshold.txt'
+
 
 def main():
     args = parse_user_args()
     gecvw.load_config(args.config, {'source-cset': args.source_cset,
                                     'target-cset': args.target_cset})
 
+    log.info("Work dir: {}".format(args.work_dir))
     if not os.path.exists(args.work_dir):
         os.makedirs(args.work_dir)
-    log.info("work dir: {}".format(args.work_dir))
+        os.makedirs(args.work_dir + '/train')
+        os.makedirs(args.work_dir + '/dev')
+        os.makedirs(args.work_dir + '/gridsearch')
 
     cfg_file = args.work_dir + '/config.yml'
     if not os.path.exists(cfg_file):
@@ -37,7 +42,9 @@ def main():
 
     model = cmd.filepath(args.work_dir, config['model']) + '.vw'
     if not os.path.exists(model):
-        train_set = cmd.filepath(args.work_dir, 'train')
+        log.info("Start training...")
+
+        train_set = args.work_dir + '/train/train'
         cmd.ln(config['train-set'], train_set + '.txt')
 
         if not config['factors']:
@@ -46,12 +53,13 @@ def main():
         extract_features(train_set, train=True)
         VWTrainer().train(model, train_set + '.feats')
 
-    thr_file = cmd.filepath(args.work_dir, 'threshold')
-    if not os.path.exists(thr_file):
-        dev_set = cmd.filepath(args.work_dir, 'dev')
-        cmd.ln(config['dev-set'], dev_set + '.m2')
+    thr_value = read_threshold(args.work_dir)
+    if not thr_value:
+        log.info("Start grid search...")
 
-        maxmatch.parallelize_m2(dev_set + '.m2', dev_set + '.txt')
+        dev_set = args.work_dir + '/dev/dev'
+        cmd.ln(config['dev-set'], dev_set + '.m2')
+        parallelize_m2(dev_set)
 
         if not config['factors']:
             pass  # add factors
@@ -59,25 +67,19 @@ def main():
         extract_features(dev_set, train=False)
         train_vw(model, dev_set)
 
-        search_dir = args.work_dir + '/grid_search'
-        if not os.path.exists(search_dir):
-            os.makedirs(search_dir)
-
-        threshold = search_threshold(dev_set, work_dir=search_dir)
-        with open(thr_file, 'w') as thr_io:
-            thr_io.write("{}".format(threshold[0]))
-    else:
-        with open(thr_file) as thr_io:
-            threshold = float(thr_io.read().strip())
+        thr_value, _ = search_threshold(
+            dev_set, work_dir=args.work_dir + '/gridsearch')
+        save_threshold(args.work_dir, thr_value)
 
     for name, m2 in config['test-sets'].iteritems():
-        test_set = cmd.filepath(args.work_dir, name)
+        log.info("Start evaluation for '{}'...".format(name))
 
+        test_set = cmd.filepath(args.work_dir, name)
         if os.path.exists(test_set + '.eval'):
             continue
 
         cmd.ln(m2, test_set + '.m2')
-        maxmatch.parallelize_m2(test_set + '.m2', test_set + '.txt')
+        parallelize_m2(test_set)
 
         if not config['factors']:
             pass  # add factors
@@ -101,9 +103,23 @@ def train_vw(model, data):
     VWPredictor().run(model, data + '.feats', data + '.pred')
 
 
+def read_threshold(work_dir):
+    thr_file = os.path.join(work_dir, THRESHOLD_FILE)
+    if not os.path.exists(thr_file):
+        return None
+    with open(thr_file) as thr_io:
+        value = float(thr_io.read().strip())
+    return value
+
+
 def search_threshold(data, work_dir):
     return gecvw.evaluation.run_grid_search(
         data + '.m2', data + '.cword', data + '.pred', work_dir=work_dir)
+
+
+def save_threshold(work_dir, value):
+    with open(os.path.join(work_dir, THRESHOLD_FILE), 'w') as thr_io:
+        thr_io.write(str(value))
 
 
 def apply_predictions(data):
@@ -112,6 +128,10 @@ def apply_predictions(data):
             open(data + '.cword', 'r') as cword, \
             open(data + '.pred', 'r') as pred:
         gecvw.prediction.apply_predictions(txt, out, cword, pred)
+
+
+def parallelize_m2(data):
+    maxmatch.parallelize_m2(data + '.m2', data + '.txt')
 
 
 def run_vw(model, data):
