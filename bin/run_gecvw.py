@@ -16,11 +16,11 @@ from gecvw.utils import cmd
 import gecvw.features
 import gecvw.prediction
 import gecvw.evaluation
+import gecvw.evaluation.maxmatch
 import gecvw.factors
 
 from gecvw.vw.vw_trainer import VWTrainer
 from gecvw.vw.vw_predictor import VWPredictor
-from gecvw.evaluation import maxmatch
 
 THRESHOLD_FILE = 'threshold.txt'
 
@@ -67,21 +67,30 @@ def main():
         save_threshold(args.work_dir, thr_value)
 
     for name, m2 in config['test-sets'].iteritems():
-        log.info("Start evaluation for '{}'...".format(name))
-
         test_set = cmd.filepath(args.work_dir, name)
         if os.path.exists(test_set + '.eval'):
             continue
 
+        log.info("Start evaluation for '{}'...".format(name))
         cmd.ln(m2, test_set + '.m2')
         parallelize_m2(test_set)
 
         extract_features(test_set, train=False, factors=config['factors'])
         run_vw(model, test_set)
         apply_predictions(test_set)
+        evaluate_m2(test_set)
 
-        score = maxmatch.evaluate_m2(test_set + '.out', test_set + '.m2')
-        log.info("Results for {}: {}".format(m2, score))
+    for name, m2 in config['test-sets'].iteritems():
+        test_set = cmd.filepath(args.work_dir, name)
+        with open(test_set + '.eval') as test_io:
+            result = test_io.read().strip()
+        log.info("Scores for '{}':\n{}".format(name, result))
+
+
+def evaluate_m2(data):
+    score = gecvw.evaluation.maxmatch.evaluate_m2(
+        data + '.out', data + '.m2', log_file=data + '.eval')
+    log.info("Results for {}: {}".format('', score))
 
 
 def extract_features(data, train=False, factors={}):
@@ -132,7 +141,7 @@ def apply_predictions(data):
 
 
 def parallelize_m2(data):
-    maxmatch.parallelize_m2(data + '.m2', data + '.txt')
+    gecvw.evaluation.maxmatch.parallelize_m2(data + '.m2', data + '.txt')
 
 
 def run_vw(model, data):
