@@ -77,7 +77,7 @@ def main():
 
         extract_features(test_set, train=False, factors=config['factors'])
         run_vw(model, test_set)
-        apply_predictions(test_set)
+        apply_predictions(test_set, thr_value)
         evaluate_m2(test_set)
 
     for name, m2 in config['test-sets'].iteritems():
@@ -132,12 +132,13 @@ def save_threshold(work_dir, value):
         thr_io.write(str(value))
 
 
-def apply_predictions(data):
+def apply_predictions(data, threshold):
     with open(data + '.txt') as txt, \
             open(data + '.out', 'w') as out, \
             open(data + '.cword', 'r') as cword, \
             open(data + '.pred', 'r') as pred:
-        gecvw.prediction.apply_predictions(txt, out, cword, pred)
+        gecvw.prediction.apply_predictions(
+            txt, out, cword, pred, threshold=threshold)
 
 
 def parallelize_m2(data):

@@ -6,6 +6,10 @@ from logger import log
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 SCRIPTS_DIR = os.path.abspath(os.path.join(ROOT_DIR, '..', 'scripts'))
 
+REQUIRED_CONFIG_KEYS = [
+    'vowpal-wabbit', 'mosesdecoder', 'source-cset', 'target-cset', 'factors',
+    'features', 'model', 'threshold'
+]
 
 
 class Singleton(object):
@@ -27,6 +31,14 @@ class GlobalConfig(Singleton):
             except yaml.YAMLError as exc:
                 log.error("Load config failed: {}".format(exc))
         log.debug("Load config: {}".format(self.config))
+
+    def save_config(self, config_file):
+        log.debug("Save config: {}".format(config_file))
+        with open(config_file, 'w') as config_io:
+            yaml.dump(self.config, config_io, default_flow_style=False)
+
+    def set(self, key, value):
+        self.config[key] = value
 
     def get(self):
         return self.config

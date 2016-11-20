@@ -10,9 +10,9 @@ from logger import log
 
 
 class OutputFormatter(object):
-    def __init__(self, output, threshold=0.0, restore_case=True, debug=False):
+    def __init__(self, output, threshold=0.0, restore_case=True, debug=True):
         self.output = output
-        self.threshold = 0.0
+        self.threshold = threshold
         self.restore_case = restore_case
         self.debug = debug
 
@@ -34,8 +34,9 @@ class OutputFormatter(object):
             pred = self.__predicted_word(cword, preds)
 
             if self.debug:
+                nice_preds = " ".join("{}={:.3f}".format(e[0], e[1]) for e in preds)
+                log.debug("  predictions: {}".format(nice_preds))
                 log.debug("  {} {} -> {}".format(cword.pos, cword.err, pred))
-                log.debug("  predictions: {}".format(preds))
 
             if cword.err.lower() != pred.lower():
                 i, j = cword.pos
@@ -54,7 +55,8 @@ class OutputFormatter(object):
     def __predicted_word(self, cword, preds):
         # predictions are already sorted from best to worse
         pred_cw, conf = preds[0]
-        if (pred_cw == cword.src) or (self.threshold and conf < self.threshold):
+        if (pred_cw == cword.src) or (self.threshold and
+                                      conf < self.threshold):
             return cword.err
         # TODO: restore case?
         return CSetPair.construct_correction(cword.err, cword.src, pred_cw)
