@@ -47,6 +47,7 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
             awc_toks = factors['wc'].next().strip().split()
         sentence = [txt_toks, pos_toks, awc_toks]
 
+        log.debug("Find confusion words in #{} sentence".format(sid))
         for cword in finder.find_confusion_words(line):
             feat_str = extractor.extract_features(cword, sentence)
             feat_io.write(feat_str)

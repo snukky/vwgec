@@ -20,21 +20,28 @@ class CWordFinder():
         err_toks, edits = self.parse_corpus_line(line)
         added = False
 
+        # log.warn("Edits: {}".format(edits))
+
         for i, err in enumerate(err_toks):
             if (i, i + 1) in edits:
                 cor, src_cw, tgt_cw = edits[(i, i + 1)][1:]
+                # log.warn('1: {} {} {} {}'.format(err, cor, src_cw, tgt_cw))
                 if self.csets.tgt.include(cor):
                     yield CWord(i, i + 1, err, cor, src_cw, tgt_cw)
                     self.count += 1
                     added = True
-            elif (i, i) in edits and self.train and self.csets.src.has_null():
+            elif (i, i) in edits:
+                if not (self.train and self.csets.src.has_null()):
+                    continue
                 err, cor, src_cw, tgt_cw = edits[(i, i)]
+                # log.warn('2: {} {} {} {}'.format(err, cor, src_cw, tgt_cw))
                 yield CWord(i, i, err, cor, src_cw, tgt_cw)
                 self.count += 1
                 added = False
             else:
                 src_cw = self.csets.src.match(err)
-                if src_cw is None:
+                # log.warn('3: {} {}'.format(err, src_cw))
+                if src_cw is None or src_cw == '*':
                     continue
                 yield CWord(i, i + 1, err, err, src_cw, src_cw)
                 self.count += 1
@@ -67,7 +74,7 @@ class CWordFinder():
                 if tgt_cw is None:
                     continue
                 if not self.csets.are_compatible(err_tok, cor_tok, src_cw,
-                                                tgt_cw):
+                                                 tgt_cw):
                     continue
                 edits[(i1, i2)] = (err_tok, cor_tok, src_cw, tgt_cw)
             elif tag == 'insert':
