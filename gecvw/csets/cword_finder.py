@@ -11,13 +11,17 @@ from logger import log
 
 
 class CWordFinder():
-    def __init__(self, cset_pair, train=False):
+    def __init__(self, cset_pair, train=False, extra_finders=[]):
         self.train = train
         self.csets = cset_pair
         self.count = 0
+        self.extra_finders = extra_finders
 
-    def find_confusion_words(self, line):
-        err_toks, edits = self.parse_corpus_line(line)
+    def find_confusion_words(self, line, sentence=None):
+        err_toks, edits = self.__parse_corpus_line(line)
+
+        for finder in self.extra_finders:
+            edits = finder.update_edits(edits, err_toks, sentence)
         added = False
 
         # log.warn("Edits: {}".format(edits))
@@ -30,6 +34,7 @@ class CWordFinder():
                     yield CWord(i, i + 1, err, cor, src_cw, tgt_cw)
                     self.count += 1
                     added = True
+
             elif (i, i) in edits:
                 if not (self.train and self.csets.src.has_null()):
                     continue
@@ -38,6 +43,7 @@ class CWordFinder():
                 yield CWord(i, i, err, cor, src_cw, tgt_cw)
                 self.count += 1
                 added = False
+
             else:
                 src_cw = self.csets.src.match(err)
                 # log.warn('3: {} {}'.format(err, src_cw))
@@ -48,7 +54,7 @@ class CWordFinder():
                 added = True
                 added = False
 
-    def parse_corpus_line(self, line):
+    def __parse_corpus_line(self, line):
         if "\t" in line:
             err_toks, cor_toks = [sent.split()
                                   for sent in line.strip().split("\t")]
@@ -86,3 +92,6 @@ class CWordFinder():
                 if src_cw:
                     edits[(i1, i2)] = (err_tok, '', src_cw, CWord.NULL)
         return edits
+
+    def add_extra_finder(self, finder):
+        self.extra_finders.append(finder)

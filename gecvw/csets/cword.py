@@ -28,3 +28,7 @@ class CWord:
     def __repr__(self):
         return "CWord({},{} {},{})".format(
             self.pos[0], self.pos[1], self.src, self.tgt)
+
+    @staticmethod
+    def is_null(word):
+        return word != '' and word != '<null>'

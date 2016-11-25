@@ -15,14 +15,15 @@ class FACTORS():
     POS = 1
     WC = 2
 
-    ALL = {1: 'pos', 2: 'wc'}
+    NUMS = {0: 'tok', 1: 'pos', 2: 'wc'}
+    TAGS = {'tok': 0, 'pos': 1, 'wc': 2}
 
     def __iter__(self):
-        return ALL.iteritems()
+        return NUMS.iteritems()
 
     @staticmethod
     def names():
-        return set(FACTORS.ALL.values())
+        return set(FACTORS.TAGS.keys())
 
 
 def factorize_file(txt_file, factors=[], is_parallel=None):

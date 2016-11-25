@@ -84,7 +84,7 @@ class CSet:
             return self.cset[num_label - start_from]
         return None
 
-    def __parse_cset(self, words, separator):
+    def __parse_cset(self, words, separator=','):
         cset = [CSet.SPECIAL_CWORDS.get(w, w).lower()
                 for w in words.split(separator)]
         return sorted(list(set(cset)))

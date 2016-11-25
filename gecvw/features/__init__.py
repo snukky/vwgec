@@ -7,6 +7,7 @@ from gecvw.settings import config
 from csets.cset import CSetPair
 from csets.cword_finder import CWordFinder
 from csets.cword_reader import CWordReader
+from csets.null_finder import NullFinder
 from features.feature_extractor import FeatureExtractor
 from factors import FACTORS
 from logger import log
@@ -23,7 +24,7 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
         if factor_id == FACTORS.TXT:
             continue
 
-        factor_name = FACTORS.ALL[factor_id]
+        factor_name = FACTORS.NUMS[factor_id]
         if factor_name not in factor_files:
             log.error("File with '{}' factor not provided".format(factor_name))
             exit(1)
@@ -33,6 +34,9 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
             factors[factor_name] = open(factor_file)
 
     finder = CWordFinder(csets, train)
+    if config['null-ngrams']:
+        null_finder = NullFinder(csets.src, config['null-ngrams'])
+        finder.add_extra_finder(null_finder)
     reader = CWordReader(cword_io)
 
     count = 0
@@ -48,7 +52,7 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
         sentence = [txt_toks, pos_toks, awc_toks]
 
         log.debug("Find confusion words in #{} sentence".format(sid))
-        for cword in finder.find_confusion_words(line):
+        for cword in finder.find_confusion_words(line, sentence):
             feat_str = extractor.extract_features(cword, sentence)
             feat_io.write(feat_str)
 

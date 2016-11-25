@@ -9,6 +9,7 @@ threads: 1
 # confusion sets
 source-cset: a,an,the,
 target-cset: a,an,the,
+null-ngrams: /home/romang/projects/gecvw/data/alice.nulls
 
 # factors
 word-classes: /home/romang/projects/gecvw/data/wc.classes.gz
