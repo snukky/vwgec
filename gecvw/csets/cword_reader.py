@@ -27,6 +27,9 @@ class CWordReader(object):
     def format(self, sid, cword):
         self.stream.write(CWordReader.format_line(sid, cword) + "\n")
 
+    def rewind(self):
+        self.stream.seek(0)
+
     @staticmethod
     def read_line(line):
         fields = line.strip().split("\t")
