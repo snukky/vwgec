@@ -8,14 +8,14 @@ import argparse
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import gecvw
-import gecvw.cset
+import gecvw.csets
 
 
 def main():
     args = parse_user_args()
     gecvw.load_config(args.config, {'source-cset': args.source_cset,
                                     'target-cset': args.target_cset})
-    gecvw.cset.find_confusion_words(args.input, args.output, args.train)
+    gecvw.csets.find_confusion_words(args.input, args.output, args.train)
 
 
 def parse_user_args():

@@ -13,7 +13,7 @@ from logger import log
 
 
 def find_confusion_words(txt_io, cword_io, train=False):
-    log.info("Find confusion words in {}".format(input.name))
+    log.info("Find confusion words in {}".format(txt_io.name))
 
     csets = CSetPair(config['source-cset'], config['target-cset'])
     finder = CWordFinder(csets, train)
