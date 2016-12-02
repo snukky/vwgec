@@ -52,6 +52,10 @@ def main():
         VWTrainer().train(model, train_set + '.feats')
 
     thr_value = read_threshold(args.work_dir)
+    if not config['dev-set']:
+        thr_value = 0.6
+        log.info("No development set, using threshold= {}".format(thr_value))
+
     if not thr_value:
         log.info("Start grid search...")
 
