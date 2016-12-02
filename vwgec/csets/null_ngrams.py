@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from gecvw.settings import config
+from vwgec.settings import config
 from csets.cset import CSet
 from csets.cword import CWord
 from utils import cmd

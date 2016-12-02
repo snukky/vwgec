@@ -7,15 +7,15 @@ import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-import gecvw
-from gecvw.csets.cset import CSet
-from gecvw.csets.null_ngrams import NullNGramsFinder
-from gecvw.utils import cmd
+import vwgec
+from vwgec.csets.cset import CSet
+from vwgec.csets.null_ngrams import NullNGramsFinder
+from vwgec.utils import cmd
 
 
 def main():
     args = parse_user_args()
-    gecvw.load_config(args.config, {'source-cset': args.confusion_set,
+    vwgec.load_config(args.config, {'source-cset': args.confusion_set,
                                     'target-cset': args.confusion_set})
 
     if args.input_factor:

@@ -5,7 +5,7 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from gecvw.settings import config
+from vwgec.settings import config
 from logger import log
 
 DEFAULT_COSTS = {'aaa': 0.0, 'aab': 1.0, 'abb': 0.0, 'aba': 4.0, 'abc': 1.0}

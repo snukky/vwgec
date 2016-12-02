@@ -7,8 +7,8 @@ import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-import gecvw
-from gecvw.csets.cmatrix import CMatrixBuilder
+import vwgec
+from vwgec.csets.cmatrix import CMatrixBuilder
 
 
 def main():

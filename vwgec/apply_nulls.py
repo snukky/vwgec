@@ -7,15 +7,15 @@ import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-import gecvw
-import gecvw.features
+import vwgec
+import vwgec.features
 
 
 def main():
     args = parse_user_args()
-    gecvw.load_config(args.config, {'source-cset': args.source_cset,
+    vwgec.load_config(args.config, {'source-cset': args.source_cset,
                                     'target-cset': args.target_cset})
-    gecvw.features.extract_features(
+    vwgec.features.extract_features(
         args.input,
         args.output,
         args.cwords,

@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from gecvw.settings import config
+from vwgec.settings import config
 from evaluation.grid_search import GridSearch
 from evaluation.m2 import M2Evaluator
 from logger import log

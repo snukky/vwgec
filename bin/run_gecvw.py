@@ -8,26 +8,26 @@ import shutil
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-import gecvw
-from gecvw.settings import config
-from gecvw.logger import log
-from gecvw.utils import cmd
+import vwgec
+from vwgec.settings import config
+from vwgec.logger import log
+from vwgec.utils import cmd
 
-import gecvw.features
-import gecvw.prediction
-import gecvw.evaluation
-import gecvw.evaluation.maxmatch
-import gecvw.factors
+import vwgec.features
+import vwgec.prediction
+import vwgec.evaluation
+import vwgec.evaluation.maxmatch
+import vwgec.factors
 
-from gecvw.vw.vw_trainer import VWTrainer
-from gecvw.vw.vw_predictor import VWPredictor
+from vwgec.vw.vw_trainer import VWTrainer
+from vwgec.vw.vw_predictor import VWPredictor
 
 THRESHOLD_FILE = 'threshold.txt'
 
 
 def main():
     args = parse_user_args()
-    gecvw.load_config(args.config, {'source-cset': args.source_cset,
+    vwgec.load_config(args.config, {'source-cset': args.source_cset,
                                     'target-cset': args.target_cset})
 
     log.info("Work dir: {}".format(args.work_dir))
@@ -96,14 +96,14 @@ def extract_features(data, train=False, factors={}):
     if train:
         needed_factors = [fn for fn, ff in factors.iteritems() if not ff]
     if needed_factors:
-        new_factors = gecvw.factors.factorize_file(data + '.txt',
+        new_factors = vwgec.factors.factorize_file(data + '.txt',
                                                    needed_factors)
         factors.update(new_factors)
 
     with open(data + '.txt') as txt, \
          open(data + '.feats', 'w') as feat, \
          open(data + '.cword', 'w') as cword:
-        gecvw.features.extract_features(
+        vwgec.features.extract_features(
             txt, feat, cword, train=train, factor_files=factors)
 
 
@@ -121,7 +121,7 @@ def read_threshold(work_dir):
 
 
 def search_threshold(data, work_dir):
-    return gecvw.evaluation.run_grid_search(
+    return vwgec.evaluation.run_grid_search(
         data + '.m2', data + '.cword', data + '.pred', work_dir=work_dir)
 
 
@@ -135,12 +135,12 @@ def apply_predictions(data, threshold):
             open(data + '.out', 'w') as out, \
             open(data + '.cword', 'r') as cword, \
             open(data + '.pred', 'r') as pred:
-        gecvw.prediction.apply_predictions(
+        vwgec.prediction.apply_predictions(
             txt, out, cword, pred, threshold=threshold)
 
 
 def parallelize_m2(data):
-    gecvw.evaluation.maxmatch.parallelize_m2(data + '.m2', data + '.txt')
+    vwgec.evaluation.maxmatch.parallelize_m2(data + '.m2', data + '.txt')
 
 
 def run_vw(model, data):
@@ -148,7 +148,7 @@ def run_vw(model, data):
 
 
 def evaluate_m2(data):
-    score = gecvw.evaluation.maxmatch.evaluate_m2(
+    score = vwgec.evaluation.maxmatch.evaluate_m2(
         data + '.out', data + '.m2', log_file=data + '.eval')
     log.info("Results for {}: {}".format('', score))
 

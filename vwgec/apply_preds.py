@@ -7,14 +7,14 @@ import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-import gecvw
-import gecvw.prediction
+import vwgec
+import vwgec.prediction
 
 
 def main():
     args = parse_user_args()
-    gecvw.load_config(args.config)
-    gecvw.prediction.apply_predictions(args.input, args.output, args.cword,
+    vwgec.load_config(args.config)
+    vwgec.prediction.apply_predictions(args.input, args.output, args.cword,
                                        args.pred)
 
 

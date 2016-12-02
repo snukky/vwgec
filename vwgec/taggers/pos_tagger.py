@@ -5,7 +5,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from gecvw.settings import config
+from vwgec.settings import config
 from utils import cmd
 from logger import log
 
