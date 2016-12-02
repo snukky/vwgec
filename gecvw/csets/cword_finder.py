@@ -17,11 +17,11 @@ class CWordFinder():
         self.count = 0
         self.extra_finders = extra_finders
 
-    def find_confusion_words(self, line, sentence=None):
+    def find_confusion_words(self, line, fact_toks=None):
         err_toks, edits = self.__parse_corpus_line(line)
 
         for finder in self.extra_finders:
-            edits = finder.update_edits(edits, err_toks, sentence)
+            edits = finder.update_edits(edits, err_toks, fact_toks)
         added = False
 
         # log.warn("Edits: {}".format(edits))

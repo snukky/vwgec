@@ -18,14 +18,19 @@ class NullFinder(object):
         self.lc = self.ngrams.lc
         self.rc = self.ngrams.rc
 
-    def update_edits(self, edits, err_toks, sentence):
+    def update_edits(self, edits, err_toks, fact_toks):
         factor_id = FACTORS.TAGS[self.ngrams.factor]
-        err_tags = sentence[factor_id]
+
+        err_tags = fact_toks[factor_id]
         if err_tags is None:
             log.warn("Missing required '{}' tags!".format(self.ngrams.factor))
             return edits
         new_edits = self.find_nulls(err_toks, err_tags, edits)
-        log.info("Found {} more edits".format(len(new_edits) - len(edits)))
+
+        n = len(new_edits) - len(edits)
+        if n > 0:
+            log.info("Found {} more edits".format(n))
+
         return new_edits
 
     def find_nulls(self, tokens, tags, edits):

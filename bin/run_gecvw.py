@@ -87,12 +87,6 @@ def main():
         log.info("Scores for '{}':\n{}".format(name, result))
 
 
-def evaluate_m2(data):
-    score = gecvw.evaluation.maxmatch.evaluate_m2(
-        data + '.out', data + '.m2', log_file=data + '.eval')
-    log.info("Results for {}: {}".format('', score))
-
-
 def extract_features(data, train=False, factors={}):
     needed_factors = factors.keys()
     if train:
@@ -147,6 +141,12 @@ def parallelize_m2(data):
 
 def run_vw(model, data):
     VWPredictor().run(model, data + '.feats', data + '.pred')
+
+
+def evaluate_m2(data):
+    score = gecvw.evaluation.maxmatch.evaluate_m2(
+        data + '.out', data + '.m2', log_file=data + '.eval')
+    log.info("Results for {}: {}".format('', score))
 
 
 def parse_user_args():
