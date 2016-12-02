@@ -2,6 +2,7 @@ import os
 import sys
 
 from collections import defaultdict
+from collections import OrderedDict
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -15,8 +16,7 @@ class FeatureVector(object):
     def __init__(self, tgt_cset, costs={}):
         self.cset = tgt_cset
         self.costs = costs or config['costs'] or DEFAULT_COSTS
-        self.src_feats = []
-        self.tgt_feats = {cw: list() for cw in self.cset}
+        self.__reset_features()
 
     def add_source_feature(self, feature):
         self.src_feats.append(self.escape_special_chars(feature))
@@ -33,8 +33,7 @@ class FeatureVector(object):
             cost = self.get_cost(source, target, candidate)
             text += "1111:{} |t {} {}\n".format(cost, candidate,
                                                 ' '.join(tgt_feats))
-        self.src_feats = []
-        self.tgt_feats = {cw: list() for cw in self.cset}
+        self.__reset_features()
         return text + "\n"
 
     def escape_special_chars(self, text):
@@ -53,3 +52,9 @@ class FeatureVector(object):
     def __unique_elements(self, seq):
         seen = set()
         return [x for x in seq if not (x in seen or seen.add(x))]
+
+    def __reset_features(self):
+        self.src_feats = []
+        self.tgt_feats = OrderedDict()
+        for cw in self.cset:
+            self.tgt_feats[cw] = []

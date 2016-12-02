@@ -32,7 +32,7 @@ class CSetPair:
     def construct_correction(w1, cw1, cw2):
         # TODO: Handle the case when w1 is <null>
         if '*' not in cw2:
-            return cw2
+            return '' if cw2 == "<null>" else cw2
         i1 = cw1.find('*')
         j1 = len(cw1) - i1 - 1
         return cw2.replace('*', w1[i1:-j1])

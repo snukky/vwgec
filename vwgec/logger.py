@@ -1,5 +1,12 @@
 import logging
 
+LOG_LEVELS = {
+    'error': logging.ERROR,
+    'warn': logging.WARN,
+    'info': logging.INFO,
+    'debug': logging.DEBUG
+}
+
 
 def setup_logger(name):
     logger = logging.getLogger(name)
@@ -17,6 +24,10 @@ def setup_logger(name):
         logger.propagate = False
 
     return logger
+
+
+def set_level(level='info', name='root'):
+    logging.getLogger(name).setLevel(LOG_LEVELS[level.lower()])
 
 
 log = setup_logger('root')

@@ -12,7 +12,7 @@ class VWTrainer(object):
     def __init__(self, vw=None):
         self.vw = vw or config['vowpal-wabbit']
 
-    def train(self, model, data, options=" --csoaa_ldf m -q st"):
+    def train(self, model, data, options=" --csoaa_ldf mc -q st -b 26 --noconstant --loss_function logistic --hash all"):
         if os.path.exists(model):
             log.warn("model already exists: {}".format(model))
         if not os.path.exists(data):

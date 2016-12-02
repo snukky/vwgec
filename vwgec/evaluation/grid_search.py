@@ -11,10 +11,10 @@ from logger import log
 
 
 class GridSearch(object):
-    def __init__(self, evaluator, pred_file, log_io=None):
+    def __init__(self, evaluator, pred_file, log_file=None):
         self.evaluator = evaluator
         self.pred_file = pred_file
-        self.log = log_io
+        self.log = open(log_file, 'w+') if log_file else None
 
     def run(self, steps=10, levels=1, favor='min'):
         scores = OrderedDict()
@@ -32,6 +32,7 @@ class GridSearch(object):
         log.info("Best: {}".format(best))
         if self.log:
             self.log.write("best:{}\n".format(best))
+            self.log.close()
         return best
 
     def __best_score(self, scores, favor='min'):

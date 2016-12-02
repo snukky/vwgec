@@ -30,8 +30,6 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
 
     count = 0
     for sid, line, fact_sent in each_factorized_input(txt_io, factor_files):
-        log.debug("Find confusion words in #{} sentence".format(sid))
-
         for cword in finder.find_confusion_words(line, fact_sent):
             feat_str = extractor.extract_features(cword, fact_sent)
             feat_io.write(feat_str)

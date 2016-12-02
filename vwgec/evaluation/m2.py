@@ -37,18 +37,18 @@ class M2Evaluator(object):
 
     def run(self, thr):
         out = self.work_dir + "/thr{}.out".format(thr)
-        self.apply_predictions(self.txt_file, out, self.cword_file,
+        self.apply_predictions(thr, self.txt_file, out, self.cword_file,
                                self.pred_file)
         scores = self.evaluate(out, self.m2_file)
         log.info("M2 fscore: {}".format(scores))
         return scores
 
-    def apply_predictions(self, txt_file, out_file, cword_file, pred_file):
+    def apply_predictions(self, threshold, txt_file, out_file, cword_file, pred_file):
         pred_iter = PredictionReader(
             txt_file, cword_file, pred_file, cset=self.cset, open_files=True)
 
         out_io = open(out_file, 'w')
-        formatter = OutputFormatter(out_io)
+        formatter = OutputFormatter(out_io, threshold)
         for sid, sentence, preds in pred_iter:
             formatter.format(sid, sentence, preds)
         out_io.close()
@@ -72,6 +72,10 @@ class M2Evaluator(object):
         # result = cmd.run("{scorer} --candidate {txt} --reference {m2}" \
         # .format(scorer=config.TOOLS.M2SCORER_CPP, txt=text_file, m2=m2_file))
 
-        return tuple(
+        scores = [
             float(line.rsplit(' ', 1)[-1])
-            for line in result.strip().split("\n"))
+            for line in result.strip().split("\n")
+        ]
+        # Scores includes precision, recall, and F-score. We want to have
+        # F-score as main evaluation metric.
+        return scores[2], scores[0], scores[1]

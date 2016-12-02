@@ -14,12 +14,13 @@ DEBUG_COUNTER = 50000
 
 
 class NullNGrams(object):
-    def __init__(self, file_name, min_count=0):
+    def __init__(self, file_name, min_count=0, limit=None):
         self.file_name = file_name
         self.factor = None
         self.lc = None
         self.rc = None
         self.min_count = 0
+        self.limit = limit
 
         self.ngrams = set()
         self.__load_ngrams(file_name)
@@ -39,6 +40,8 @@ class NullNGrams(object):
                         self.factor, self.lc, self.rc))
                     continue
                 ngram, count = line.strip().split("\t")
+                if self.limit and i > self.limit:
+                    break
                 if count < self.min_count:
                     break
                 ngrams.append(ngram)
@@ -51,10 +54,10 @@ class NullNGrams(object):
             f.write("{} {} {}\n".format(factor, left_context, right_context))
 
     @staticmethod
-    def load(file_name, min_count=None):
+    def load(file_name, min_count=None, limit=None):
         with open(file_name, 'r') as f:
             factor, lc, rc = f.next().strip().split()
-        return NullNGrams(file_name, min_count)
+        return NullNGrams(file_name, min_count, limit)
 
 
 class NullNGramsFinder(object):

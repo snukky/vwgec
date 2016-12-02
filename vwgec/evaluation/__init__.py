@@ -9,7 +9,7 @@ from evaluation.m2 import M2Evaluator
 from logger import log
 
 
-def run_grid_search(m2_file, cwords, preds, work_dir):
+def run_grid_search(m2_file, cwords, preds, work_dir, log_file=None):
     evaluator = M2Evaluator(m2_file, cwords, preds, work_dir=work_dir)
-    searcher = GridSearch(evaluator, preds)
+    searcher = GridSearch(evaluator, preds, log_file)
     return searcher.run()

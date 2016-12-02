@@ -33,8 +33,11 @@ def main():
     log.info("Work dir: {}".format(args.work_dir))
     if not os.path.exists(args.work_dir):
         os.makedirs(args.work_dir)
+    if not os.path.exists(args.work_dir + '/train'):
         os.makedirs(args.work_dir + '/train')
+    if not os.path.exists(args.work_dir + '/dev'):
         os.makedirs(args.work_dir + '/dev')
+    if not os.path.exists(args.work_dir + '/gridsearch'):
         os.makedirs(args.work_dir + '/gridsearch')
 
     cfg_file = args.work_dir + '/config.yml'
@@ -46,7 +49,8 @@ def main():
         log.info("Start training...")
 
         train_set = args.work_dir + '/train/train'
-        cmd.ln(config['train-set'], train_set + '.txt')
+        for train_data in config['train-set']:
+            cmd.run("cat {} >> {}".format(train_data, train_set + '.txt'))
 
         extract_features(train_set, train=True, factors=config['factors'])
         VWTrainer().train(model, train_set + '.feats')
@@ -122,7 +126,11 @@ def read_threshold(work_dir):
 
 def search_threshold(data, work_dir):
     return vwgec.evaluation.run_grid_search(
-        data + '.m2', data + '.cword', data + '.pred', work_dir=work_dir)
+        data + '.m2',
+        data + '.cword',
+        data + '.pred',
+        work_dir=work_dir,
+        log_file=data + '.grid')
 
 
 def save_threshold(work_dir, value):
@@ -150,7 +158,7 @@ def run_vw(model, data):
 def evaluate_m2(data):
     score = vwgec.evaluation.maxmatch.evaluate_m2(
         data + '.out', data + '.m2', log_file=data + '.eval')
-    log.info("Results for {}: {}".format('', score))
+    log.info("Results for {}: {}".format(data, score))
 
 
 def parse_user_args():

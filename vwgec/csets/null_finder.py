@@ -14,7 +14,7 @@ from logger import log
 class NullFinder(object):
     def __init__(self, cset, ngram_file, min_count=1):
         self.cset = cset
-        self.ngrams = NullNGrams.load(ngram_file, min_count)
+        self.ngrams = NullNGrams.load(ngram_file, min_count, limit=5000)
         self.lc = self.ngrams.lc
         self.rc = self.ngrams.rc
 

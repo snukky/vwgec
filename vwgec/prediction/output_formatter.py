@@ -10,7 +10,7 @@ from logger import log
 
 
 class OutputFormatter(object):
-    def __init__(self, output, threshold=0.0, restore_case=True, debug=True):
+    def __init__(self, output, threshold=0.0, restore_case=True, debug=False):
         self.output = output
         self.threshold = threshold
         self.restore_case = restore_case
