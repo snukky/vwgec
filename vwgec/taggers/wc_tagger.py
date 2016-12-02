@@ -5,8 +5,10 @@ import sys
 import gzip
 import io
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+# sys.path.insert(0, os.path.dirname(__file__))
 
+from vwgec import settings
 from vwgec.settings import config
 from logger import log
 
@@ -51,6 +53,7 @@ class WordClassTagger:
 
 
 if __name__ == '__main__':
+    settings.config.load_config(sys.argv[1], {})
     tagger = WordClassTagger()
     for line in sys.stdin:
         print ' '.join(tagger.tag(line.strip().split()))
