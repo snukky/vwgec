@@ -48,12 +48,12 @@ class GridSearch(object):
             iterator = LDFIterator(pred_io)
 
             min_thr, max_thr = float('inf'), float('-inf')
-            for values in iterator:
-                for _, value in values:
-                    if min_thr > value:
-                        min_thr = value
-                    if max_thr < value:
-                        max_thr = value
+            for preds in iterator:
+                value = max(v for _, v in preds)
+                if min_thr > value:
+                    min_thr = value
+                if max_thr < value:
+                    max_thr = value
 
         log.debug("found min/max params: {}/{}".format(min_thr, max_thr))
         step = (max_thr - min_thr) / float(steps)
