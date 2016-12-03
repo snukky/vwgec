@@ -28,6 +28,7 @@ class OutputFormatter(object):
 
     def apply_predictions(self, sentence, all_preds):
         tokens = sentence.split()
+        debug_str = ""
         c = 0
 
         for cword, preds in all_preds:
@@ -35,8 +36,8 @@ class OutputFormatter(object):
 
             if self.debug:
                 nice_preds = " ".join("{}={:.3f}".format(e[0], e[1]) for e in preds)
-                log.debug("  predictions: {}".format(nice_preds))
-                log.debug("  {} {} -> {}".format(cword.pos, cword.err, pred))
+                debug_str += "  predictions: {}".format(nice_preds)
+                debug_str += "  {} {} -> {}".format(cword.pos, cword.err, pred)
 
             if cword.err.lower() != pred.lower():
                 i, j = cword.pos
@@ -49,6 +50,9 @@ class OutputFormatter(object):
 
         if self.restore_case and new_sentence != sentence:
             new_sentence = restore_sentence_case(new_sentence, sentence)
+
+        if self.debug and c > 0:
+            log.debug(self.debug)
 
         return (new_sentence, c)
 
