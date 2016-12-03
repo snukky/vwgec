@@ -21,6 +21,7 @@ def main():
     else:
         for cor, err, count, prob in cmatrix.sorted_edits():
             print "{}\t{}\t{}\t{}".format(cor, err, count, prob)
+        print cmatrix.stats()
 
 
 def parse_user_args():
@@ -29,8 +30,8 @@ def parse_user_args():
     parser.add_argument('cwords', nargs='?', type=argparse.FileType('r'),
         default=sys.stdin, help="confusion words")
     parser.add_argument('-o', '--output', help="output matrix")
-    parser.add_argument("-e", "--min-err-count", type=int, default=3)
-    parser.add_argument("-c", "--min-cor-count", type=int, default=5)
+    parser.add_argument("-e", "--min-err-count", type=int, default=0)
+    parser.add_argument("-c", "--min-cor-count", type=int, default=0)
 
     return parser.parse_args()
 

@@ -80,6 +80,8 @@ class CMatrixBuilder(object):
 class CMatrix(object):
     def __init__(self, matrix):
         self.matrix = matrix
+        self.n = sum(sum(c for c, _ in bs.values()) for bs in self.matrix.values())
+        self.__calculate_statistics()
 
     @staticmethod
     def load(file_name):
@@ -96,3 +98,33 @@ class CMatrix(object):
                  for a, words in self.matrix.iteritems()
                  for b, (count, prob) in words.iteritems()]
         return sorted(edits, key=itemgetter(0, 2), reverse=True)
+
+    def stats(self):
+        return {
+            'aa_count': self.aa_count / float(self.n),
+            'ab_count': self.ab_count / float(self.n),
+            'sub': self.num_sub / float(self.ab_count),
+            'del': self.num_del / float(self.ab_count),
+            'ins': self.num_ins / float(self.ab_count)
+        }
+
+    def __calculate_statistics(self):
+        self.aa_count = 0
+        self.ab_count = 0
+        self.num_sub = 0
+        self.num_del = 0
+        self.num_ins = 0
+
+        for a, bs in self.matrix.iteritems():
+            for b, (c,f) in bs.iteritems():
+                if a == b:
+                    self.aa_count += c
+                else:
+                    self.ab_count += c
+
+                if a != CWord.NULL and b == CWord.NULL:
+                    self.num_del += c
+                elif a == CWord.NULL and b != CWord.NULL:
+                    self.num_ins += c
+                elif a != b:
+                    self.num_sub += c
