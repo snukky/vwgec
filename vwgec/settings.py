@@ -44,7 +44,7 @@ class GlobalConfig(Singleton):
         return self.config
 
     def __getitem__(self, key):
-        return self.config[key]
+        return self.config.get(key, None)
 
     def __filter_nonetypes(self, config):
         return {key: value

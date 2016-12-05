@@ -35,16 +35,17 @@ def main():
         os.makedirs(args.work_dir)
     if not os.path.exists(args.work_dir + '/train'):
         os.makedirs(args.work_dir + '/train')
-    if not os.path.exists(args.work_dir + '/dev'):
-        os.makedirs(args.work_dir + '/dev')
-    if not os.path.exists(args.work_dir + '/gridsearch'):
-        os.makedirs(args.work_dir + '/gridsearch')
 
     cfg_file = args.work_dir + '/config.yml'
     if not os.path.exists(cfg_file):
         shutil.copy(args.config, cfg_file)
 
-    model = cmd.filepath(args.work_dir, config['model']) + '.vw'
+    model = cmd.filepath(args.work_dir, config['model'], noext=False)
+    if config['feature-filter']:
+        feat_set = cmd.filepath(args.work_dir, config['feature-filter'], noext=False)
+    else:
+        feat_set = None
+
     if not os.path.exists(model):
         log.info("Start training...")
 
@@ -52,22 +53,29 @@ def main():
         for train_data in config['train-set']:
             cmd.run("cat {} >> {}".format(train_data, train_set + '.txt'))
 
-        extract_features(train_set, train=True, factors=config['factors'])
+        extract_features(
+            train_set, train=True, factors=config['factors'], freqs=feat_set)
         VWTrainer().train(model, train_set + '.feats')
 
     thr_value = read_threshold(args.work_dir)
     if not config['dev-set']:
-        thr_value = 0.6
+        thr_value = 0.0
         log.info("No development set, using threshold= {}".format(thr_value))
 
-    if not thr_value:
-        log.info("Start grid search...")
+    if config['dev-set'] and not thr_value:
+        if not os.path.exists(args.work_dir + '/dev'):
+            os.makedirs(args.work_dir + '/dev')
+        if not os.path.exists(args.work_dir + '/gridsearch'):
+            os.makedirs(args.work_dir + '/gridsearch')
+
+        log.info("Start tuning...")
 
         dev_set = args.work_dir + '/dev/dev'
         cmd.ln(config['dev-set'], dev_set + '.m2')
         parallelize_m2(dev_set)
 
-        extract_features(dev_set, train=False, factors=config['factors'])
+        extract_features(
+            dev_set, train=False, factors=config['factors'], freqs=feat_set)
         train_vw(model, dev_set)
 
         thr_value, _ = search_threshold(
@@ -83,7 +91,8 @@ def main():
         cmd.ln(m2, test_set + '.m2')
         parallelize_m2(test_set)
 
-        extract_features(test_set, train=False, factors=config['factors'])
+        extract_features(
+            test_set, train=False, factors=config['factors'], freqs=feat_set)
         run_vw(model, test_set)
         apply_predictions(test_set, thr_value)
         evaluate_m2(test_set)
@@ -95,7 +104,7 @@ def main():
         log.info("Scores for '{}':\n{}".format(name, result))
 
 
-def extract_features(data, train=False, factors={}):
+def extract_features(data, train=False, factors={}, freqs=None):
     needed_factors = factors.keys()
     if train:
         needed_factors = [fn for fn, ff in factors.iteritems() if not ff]
@@ -109,6 +118,11 @@ def extract_features(data, train=False, factors={}):
          open(data + '.cword', 'w') as cword:
         vwgec.features.extract_features(
             txt, feat, cword, train=train, factor_files=factors)
+
+    if freqs:
+        train_freqs = data + '.feats' if train else None
+        vwgec.features.filter_features(
+            freqs, data + '.feats', create_from=train_freqs)
 
 
 def train_vw(model, data):

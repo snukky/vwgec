@@ -28,7 +28,7 @@ class CWordFinder():
 
         for i, err in enumerate(err_toks):
             if (i, i + 1) in edits:
-                cor, src_cw, tgt_cw = edits[(i, i + 1)][1:]
+                cor, src_cw, tgt_cw, _ = edits[(i, i + 1)][1:]
                 # log.warn('1: {} {} {} {}'.format(err, cor, src_cw, tgt_cw))
                 if self.csets.tgt.include(cor):
                     yield CWord(i, i + 1, err, cor, src_cw, tgt_cw)
@@ -36,9 +36,11 @@ class CWordFinder():
                     added = True
 
             elif (i, i) in edits:
-                if not (self.train and self.csets.src.has_null()):
+                err, cor, src_cw, tgt_cw, train_only = edits[(i, i)]
+                if not self.csets.src.has_null():
                     continue
-                err, cor, src_cw, tgt_cw = edits[(i, i)]
+                if train_only and not self.train:
+                    continue
                 # log.warn('2: {} {} {} {}'.format(err, cor, src_cw, tgt_cw))
                 yield CWord(i, i, err, cor, src_cw, tgt_cw)
                 self.count += 1
@@ -82,15 +84,15 @@ class CWordFinder():
                 if not self.csets.are_compatible(err_tok, cor_tok, src_cw,
                                                  tgt_cw):
                     continue
-                edits[(i1, i2)] = (err_tok, cor_tok, src_cw, tgt_cw)
+                edits[(i1, i2)] = (err_tok, cor_tok, src_cw, tgt_cw, False)
             elif tag == 'insert':
                 tgt_cw = self.csets.tgt.match(cor_tok)
                 if tgt_cw:
-                    edits[(i1, i2)] = ('', cor_tok, CWord.NULL, tgt_cw)
+                    edits[(i1, i2)] = ('', cor_tok, CWord.NULL, tgt_cw, True)
             elif tag == 'delete':
                 src_cw = self.csets.src.match(err_tok)
                 if src_cw:
-                    edits[(i1, i2)] = (err_tok, '', src_cw, CWord.NULL)
+                    edits[(i1, i2)] = (err_tok, '', src_cw, CWord.NULL, False)
         return edits
 
     def add_extra_finder(self, finder):

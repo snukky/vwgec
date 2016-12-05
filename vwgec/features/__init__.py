@@ -4,13 +4,18 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from vwgec.settings import config
+
 from csets.cset import CSetPair
 from csets.cword_finder import CWordFinder
 from csets.cword_reader import CWordReader
 from csets.null_finder import NullFinder
+
 from features.feature_extractor import FeatureExtractor
-from factors import FACTORS
+from features.filter import FeatureFilter
+
 from utils.input import each_factorized_input
+
+from factors import FACTORS
 from logger import log
 
 
@@ -38,6 +43,10 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
             count += 1
 
     log.info("Found {} confusion words".format(count))
+
+
+def filter_features(freq_file, feat_file, create_from=None):
+    FeatureFilter(freq_file, create_from=create_from).filter(feat_file)
 
 
 def check_factor_requirements(required_factors, provided_factors):

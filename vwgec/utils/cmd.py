@@ -19,7 +19,7 @@ def wc(file):
     if not os.path.exists(file) or os.path.isdir(file):
         return None
     count = int(os.popen('wc -l ' + file).read().strip().split()[0])
-    log.info("file {} has {} lines".format(file, count))
+    # log.debug("File {} has {} lines".format(file, count))
     return count
 
 
@@ -50,7 +50,7 @@ def is_parallel(file):
         return "\t" in file_io.next().strip()
 
 
-def filepath(dir, file):
+def filepath(dir, file, noext=True):
     filename = os.path.split(file)[1]
-    filepath = os.path.join(dir, os.path.splitext(filename)[0])
-    return filepath
+    filebase = os.path.splitext(filename)[0] if noext else filename
+    return os.path.join(dir, filebase)

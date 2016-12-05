@@ -22,5 +22,6 @@ class SourceNGramFeature(BaseFeature):
             for i in xrange(cword.pos[1], cword.pos[1] + num_words_after):
                 ngram.append("</s>" if i >= len(sentence) else sentence[i])
 
-            feat = "ngram^{}={}".format(num_words_before, ' '.join(ngram))
+            feat = "ngram{}{}^{}={}".format(num_words_before, num_words_after,
+                                            self.factor, ' '.join(ngram))
             vector.add_source_feature(feat.lower())

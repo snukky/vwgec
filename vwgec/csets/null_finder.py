@@ -54,9 +54,14 @@ class NullFinder(object):
             else:
                 j = i + self.lc
                 ngram = self.__ngram(j, tags_with_marks)
+                # log.error("{} {}".format(i, ngram))
                 if ngram is not None and ngram in self.ngrams:
                     if (i, i) not in edits:
-                        edits[(i, i)] = ('', '', CWord.NULL, CWord.NULL)
+                        edits[(i, i)] = ('', '', CWord.NULL, CWord.NULL, False)
+                    else:
+                        cor = edits[(i, i)][1]
+                        tgt_cw = edits[(i, i)][3]
+                        edits[(i, i)] = ('', cor, CWord.NULL, tgt_cw, False)
         return edits
 
     def __add_sentence_marks(self, tokens):

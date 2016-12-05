@@ -14,9 +14,9 @@ class LDFIterator(Iterator):
         self.stream = stream
         self.labels = None
         if cset:
-            log.debug(cset)
+            # log.debug(cset)
             self.labels = cset.tolist()
-            log.debug("Labels: {}".format(self.labels))
+            # log.debug("Labels: {}".format(self.labels))
         self.sort = sort
 
     def next(self):
