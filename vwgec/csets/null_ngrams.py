@@ -36,7 +36,7 @@ class NullNGrams(object):
                     self.factor, lc, rc = line.strip().split()
                     self.lc = int(lc)
                     self.rc = int(rc)
-                    log.info("Load ngrams from {}: factor= {} contexts= {}/{}".format(
+                    log.info("Load ngrams {} (factor={} contexts={},{})".format(
                         file_name, self.factor, self.lc, self.rc))
                     continue
                 ngram, count = line.strip().split("\t")

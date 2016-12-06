@@ -4,9 +4,9 @@ import os
 import sys
 import gzip
 import io
+import cPickle as pickle
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-# sys.path.insert(0, os.path.dirname(__file__))
 
 from vwgec import settings
 from vwgec.settings import config
@@ -17,6 +17,7 @@ class WordClassTagger:
     def __init__(self, dictionary=None):
         self.unknown_wc = '?'
         self.dictionary = dictionary or config['word-classes']
+        self.nrm_quotes = False
         self.__load_dictionary()
 
     def tag(self, tokens):
@@ -37,19 +38,31 @@ class WordClassTagger:
 
         return awc_file
 
+    def save(self, dic_file):
+        log.info("Save dictionary to {}".format(dic_file))
+        with open(dic_file, 'wb') as dic_io:
+            pickle.dump(self.dic, dic_io)
+
     def __load_dictionary(self):
         log.info("Load dictionary {}...".format(self.dictionary))
         self.dic = {}
 
-        reader = gzip if self.dictionary.endswith('.gz') else io
-        with reader.open(self.dictionary) as f:
-            for line in f:
-                word, tag = line.split()[:2]
-                self.dic[word] = tag
+        if self.dictionary.endswith('.pkl'):
+            with open(self.dictionary, 'rb') as dic_io:
+                self.dic = pickle.load(dic_io)
+        else:
+            reader = gzip if self.dictionary.endswith('.gz') else io
+            with reader.open(self.dictionary) as dic_io:
+                for line in dic_io:
+                    word, tag = line.split()[:2]
+                    self.dic[word] = tag
+
+        if self.nrm_quotes:
+            for word in self.dic:
                 if word.find('&apos;') != -1:
-                    self.dic[word.replace('&apos;', "'")] = tag
+                    self.dic[word.replace('&apos;', "'")] = self.dic[word]
                 if word.find('&quot;') != -1:
-                    self.dic[word.replace('&quot;', '"')] = tag
+                    self.dic[word.replace('&quot;', '"')] = self.dic[word]
 
 
 if __name__ == '__main__':

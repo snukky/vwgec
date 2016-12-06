@@ -20,8 +20,6 @@ from logger import log
 
 
 def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
-    log.info("Extract features from {}".format(txt_io.name))
-
     csets = CSetPair(config['source-cset'], config['target-cset'])
     extractor = FeatureExtractor(csets, config['features'], config['costs'])
 
@@ -32,6 +30,8 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
         null_finder = NullFinder(csets.src, config['nulls-ngrams'])
         finder.add_extra_finder(null_finder)
     reader = CWordReader(cword_io)
+
+    log.info("Extract features from {}".format(txt_io.name))
 
     count = 0
     for sid, line, fact_sent in each_factorized_input(txt_io, factor_files):

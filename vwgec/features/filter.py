@@ -30,16 +30,19 @@ class FeatureFilter(object):
                 if int(count) < min_freq or i > limit:
                     break
                 feats.append(feat)
-        log.info("{} features loaded".format(len(feats)))
+        log.info("Load {} features".format(len(feats)))
         self.feats = set(feats)
 
     def __calculate_freqs(self, feat_file, freq_file):
-        command = r"cat {}" \
+        command = r"cat {feats}" \
                 " | grep '^shared' | cut -c11-" \
-                " | tr ' ' '\\n' | sort | uniq -c | sort -rn" \
+                " | tr ' ' '\\n' | sort -S 10G --parallel {threads}" \
+                " | uniq -c | sort -rn -S 10G --parallel {threads}" \
                 " | sed -r 's/ +([0-9]+)/\\1\\t/'" \
-                " > {}"
-        cmd.run(command.format(feat_file, freq_file))
+                " > {freqs}"
+        cmd.run(
+            command.format(
+                feats=feat_file, freqs=freq_file, threads=config['threads']))
 
     def filter(self, feat_file):
         if not self.feats:

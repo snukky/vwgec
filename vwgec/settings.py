@@ -7,7 +7,7 @@ ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 SCRIPTS_DIR = os.path.abspath(os.path.join(ROOT_DIR, '..', 'scripts'))
 
 REQUIRED_CONFIG_KEYS = [
-    'vowpal-wabbit', 'source-cset', 'target-cset', 'factors',
+    'vowpal-wabbit', 'source-cset', 'target-cset',
     'features', 'model'
 ]
 OPTIONAL_CONFIG_KEYS = [
@@ -67,6 +67,8 @@ class GlobalConfig(Singleton):
             if key not in self.config:
                 continue
             value = self.config[key]
+            if key == 'factors':
+                value = {k: None for k in value}
             if key in ABSOLUTE_PATH_KEYS:
                 value = os.path.abspath(value)
             data[key] = value
