@@ -27,26 +27,36 @@ THRESHOLD_FILE = 'threshold.txt'
 
 def main():
     args = parse_user_args()
-    vwgec.load_config(args.config, {'source-cset': args.source_cset,
-                                    'target-cset': args.target_cset})
+    # update = {'source-cset': args.source_cset, 'target-cset': args.target_cset}
+    update = {}
+    vwgec.load_config(args.config, update)
 
     log.info("Work dir: {}".format(args.work_dir))
     if not os.path.exists(args.work_dir):
         os.makedirs(args.work_dir)
-    if not os.path.exists(args.work_dir + '/train'):
-        os.makedirs(args.work_dir + '/train')
 
-    cfg_file = args.work_dir + '/config.yml'
-    if not os.path.exists(cfg_file):
-        shutil.copy(args.config, cfg_file)
+    if config['train']:
+        if not os.path.exists(args.work_dir + '/train'):
+            os.makedirs(args.work_dir + '/train')
 
-    model = cmd.filepath(args.work_dir, config['model'], noext=False)
-    if config['feature-filter']:
-        feat_set = cmd.filepath(args.work_dir, config['feature-filter'], noext=False)
-    else:
-        feat_set = None
+        cfg_file = args.work_dir + '/config.yml'
+        if not os.path.exists(cfg_file):
+            shutil.copy(args.config, cfg_file)
 
-    if not os.path.exists(model):
+    if config['train']:
+        model = cmd.filepath(args.work_dir, config['model'], noext=False)
+        config.set('model', model)
+        if config['feature-filter']:
+            feat_set = cmd.filepath(
+                args.work_dir, config['feature-filter'], noext=False)
+            config.set('feature-filter', feat_set)
+
+    model = config['model']
+    log.info("Model: {}".format(model))
+    feat_set = config['feature-filter']
+    log.info("Feature filter: {}".format(feat_set))
+
+    if config['train'] and not os.path.exists(model):
         log.info("Start training...")
 
         train_set = args.work_dir + '/train/train'
@@ -57,12 +67,13 @@ def main():
             train_set, train=True, factors=config['factors'], freqs=feat_set)
         VWTrainer().train(model, train_set + '.feats')
 
-    thr_value = read_threshold(args.work_dir)
-    if not config['dev-set']:
-        thr_value = config['threshold'] or 0.0
-        log.info("No development set, using threshold= {}".format(thr_value))
+    thr_value = config['threshold'] or 0.0
+    if config['train']:
+        thr_value = read_threshold(args.work_dir) or thr_value
+        if not config['dev-set']:
+            log.info("No development set, using threshold= {}".format(thr_value))
 
-    if config['dev-set'] and not thr_value:
+    if config['train'] and config['dev-set'] and not thr_value:
         if not os.path.exists(args.work_dir + '/dev'):
             os.makedirs(args.work_dir + '/dev')
         if not os.path.exists(args.work_dir + '/gridsearch'):
@@ -83,29 +94,39 @@ def main():
         save_threshold(args.work_dir, thr_value)
         config.set('threshold', thr_value)
 
-    if config['train-set']:
+    if config['train'] and config['train-set']:
         config.save_runnable_config(args.work_dir + '/run.yml')
 
-    for name, m2 in config['test-sets'].iteritems():
-        test_set = cmd.filepath(args.work_dir, name)
-        if os.path.exists(test_set + '.eval'):
-            continue
+    if config['test-sets']:
+        for name, m2 in config['test-sets'].iteritems():
+            test_set = cmd.filepath(args.work_dir, name)
+            if os.path.exists(test_set + '.eval'):
+                continue
 
-        log.info("Start evaluation for '{}'...".format(name))
-        cmd.ln(m2, test_set + '.m2')
-        parallelize_m2(test_set)
+            log.info("Start evaluation for '{}'...".format(name))
+            cmd.ln(m2, test_set + '.m2')
+            parallelize_m2(test_set)
+
+            extract_features(
+                test_set, train=False, factors=config['factors'], freqs=feat_set)
+            run_vw(model, test_set)
+            apply_predictions(test_set, thr_value)
+            evaluate_m2(test_set)
+
+        for name, m2 in config['test-sets'].iteritems():
+            test_set = cmd.filepath(args.work_dir, name)
+            with open(test_set + '.eval') as test_io:
+                result = test_io.read().strip()
+            log.info("Scores for '{}':\n{}".format(name, result))
+
+    if args.run:
+        run_set = cmd.filepath(args.work_dir, args.run)
+        cmd.ln(args.run, run_set + '.txt')
 
         extract_features(
-            test_set, train=False, factors=config['factors'], freqs=feat_set)
-        run_vw(model, test_set)
-        apply_predictions(test_set, thr_value)
-        evaluate_m2(test_set)
-
-    for name, m2 in config['test-sets'].iteritems():
-        test_set = cmd.filepath(args.work_dir, name)
-        with open(test_set + '.eval') as test_io:
-            result = test_io.read().strip()
-        log.info("Scores for '{}':\n{}".format(name, result))
+            run_set, train=False, factors=config['factors'], freqs=feat_set)
+        run_vw(model, run_set)
+        apply_predictions(run_set, thr_value)
 
 
 def extract_features(data, train=False, factors={}, freqs=None):
@@ -181,12 +202,14 @@ def evaluate_m2(data):
 
 def parse_user_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-1', '--source-cset', help="source confusion set")
-    parser.add_argument('-2', '--target-cset', help="target confusion set")
+    # parser.add_argument('-1', '--source-cset', help="source confusion set")
+    # parser.add_argument('-2', '--target-cset', help="target confusion set")
     parser.add_argument(
         '-f', '--config', required=True, help="configuration file")
     parser.add_argument(
         '-w', '--work-dir', required=True, help="working directory")
+    parser.add_argument('-r', '--run', help="file to be corrected")
+    parser.add_argument('-o', '--output', help="corrected file")
     return parser.parse_args()
 
 

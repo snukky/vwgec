@@ -12,8 +12,8 @@ REQUIRED_CONFIG_KEYS = [
 ]
 OPTIONAL_CONFIG_KEYS = [
     'source-cset', 'target-cset', 'factors', 'word-classes',
-    'feature-filter', 'feature-freq', 'threshold', 'nulls-ngrams', 'nulls-min-freq',
-    'threads', 'vw-options'
+    'feature-filter', 'feature-freq', 'threshold', 'nulls-ngrams', 'nulls-limit',
+    'threads', 'vw-options', 'costs'
 ]
 
 ABSOLUTE_PATH_KEYS = [

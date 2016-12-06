@@ -22,7 +22,7 @@ class OutputFormatter(object):
             return
 
         if self.debug:
-            log.debug("apply predictions into {}: '{}'".format(n, sentence))
+            log.debug("Apply predictions into {}: '{}'".format(n, sentence))
         new_sentence, _ = self.apply_predictions(sentence, preds)
         self.output.write(new_sentence + "\n")
 
