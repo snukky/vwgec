@@ -10,7 +10,7 @@ from logger import log
 
 
 class FeatureFilter(object):
-    def __init__(self, freq_file, min_freq=None, limit=5000000, create_from=None):
+    def __init__(self, freq_file, min_freq=None, limit=2000000, create_from=None):
         self.freq_file = freq_file
         self.min_freq = min_freq or config['feature-freq'] or 5
         self.feats = set()

@@ -59,7 +59,7 @@ def main():
 
     thr_value = read_threshold(args.work_dir)
     if not config['dev-set']:
-        thr_value = 0.0
+        thr_value = config['threshold'] or 0.0
         log.info("No development set, using threshold= {}".format(thr_value))
 
     if config['dev-set'] and not thr_value:
@@ -81,6 +81,10 @@ def main():
         thr_value, _ = search_threshold(
             dev_set, work_dir=args.work_dir + '/gridsearch')
         save_threshold(args.work_dir, thr_value)
+        config.set('threshold', thr_value)
+
+    if config['train-set']:
+        config.save_runnable_config(args.work_dir + '/run.yml')
 
     for name, m2 in config['test-sets'].iteritems():
         test_set = cmd.filepath(args.work_dir, name)

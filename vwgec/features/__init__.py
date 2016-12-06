@@ -28,8 +28,8 @@ def extract_features(txt_io, feat_io, cword_io, train=False, factor_files={}):
     check_factor_requirements(extractor.required_factors(), factor_files)
 
     finder = CWordFinder(csets, train)
-    if config['null-ngrams']:
-        null_finder = NullFinder(csets.src, config['null-ngrams'])
+    if config['nulls-ngrams']:
+        null_finder = NullFinder(csets.src, config['nulls-ngrams'])
         finder.add_extra_finder(null_finder)
     reader = CWordReader(cword_io)
 

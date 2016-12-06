@@ -7,14 +7,15 @@ from vwgec.settings import config
 from csets.cword import CWord
 from csets.null_ngrams import NullNGrams
 from factors import FACTORS
-
 from logger import log
 
 
 class NullFinder(object):
-    def __init__(self, cset, ngram_file, min_count=1):
+    def __init__(self, cset, ngram_file, min_freq=1, limit=None):
         self.cset = cset
-        self.ngrams = NullNGrams.load(ngram_file, min_count, limit=5000)
+        self.min_freq = min_freq
+        self.limit = limit or config['nulls-limit']
+        self.ngrams = NullNGrams.load(ngram_file, self.min_freq, self.limit)
         self.lc = self.ngrams.lc
         self.rc = self.ngrams.rc
 

@@ -20,8 +20,8 @@ def find_confusion_words(txt_io, cword_io, train=False, factor_files={}):
 
     csets = CSetPair(config['source-cset'], config['target-cset'])
     finder = CWordFinder(csets, train)
-    if config['null-ngrams']:
-        null_finder = NullFinder(csets.src, config['null-ngrams'])
+    if config['nulls-ngrams']:
+        null_finder = NullFinder(csets.src, config['nulls-ngrams'])
         finder.add_extra_finder(null_finder)
     reader = CWordReader(cword_io)
 

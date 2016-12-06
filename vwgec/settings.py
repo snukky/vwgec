@@ -7,8 +7,17 @@ ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 SCRIPTS_DIR = os.path.abspath(os.path.join(ROOT_DIR, '..', 'scripts'))
 
 REQUIRED_CONFIG_KEYS = [
-    'vowpal-wabbit', 'mosesdecoder', 'source-cset', 'target-cset', 'factors',
-    'features', 'model', 'threshold'
+    'vowpal-wabbit', 'source-cset', 'target-cset', 'factors',
+    'features', 'model'
+]
+OPTIONAL_CONFIG_KEYS = [
+    'source-cset', 'target-cset', 'factors', 'word-classes',
+    'feature-filter', 'feature-freq', 'threshold', 'nulls-ngrams', 'nulls-min-freq',
+    'threads', 'vw-options'
+]
+
+ABSOLUTE_PATH_KEYS = [
+    'vowpal-wabbit', 'model', 'word-classes', 'nulls-ngrams', 'feature-filter'
 ]
 
 
@@ -42,6 +51,28 @@ class GlobalConfig(Singleton):
 
     def get(self):
         return self.config
+
+    def save_runnable_config(self, config_file):
+        log.info("Save runnable config into {}".format(config_file))
+        data = {}
+        for key in REQUIRED_CONFIG_KEYS:
+            if key not in self.config:
+                log.error("Missing required key: {}".format(key))
+            value = self.config[key]
+            if key in ABSOLUTE_PATH_KEYS:
+                value = os.path.abspath(value)
+            data[key] = value
+
+        for key in OPTIONAL_CONFIG_KEYS:
+            if key not in self.config:
+                continue
+            value = self.config[key]
+            if key in ABSOLUTE_PATH_KEYS:
+                value = os.path.abspath(value)
+            data[key] = value
+
+        with open(config_file, 'w') as config_io:
+            yaml.dump(data, config_io)
 
     def __getitem__(self, key):
         return self.config.get(key, None)
