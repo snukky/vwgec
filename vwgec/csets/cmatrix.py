@@ -48,7 +48,8 @@ class CMatrixBuilder(object):
 class CMatrix(object):
     def __init__(self, matrix):
         self.matrix = matrix
-        self.n = sum(sum(c for c, _ in bs.values()) for bs in self.matrix.values())
+        self.n = sum(
+            sum(c for c, _ in bs.values()) for bs in self.matrix.values())
         self.__calculate_statistics()
 
     @staticmethod
@@ -71,34 +72,52 @@ class CMatrix(object):
         log.info("Edits n={} AA={} AB={}" \
             .format(self.n, self.aa_count, self.ab_count))
         log.info("Operations SUB={} DEL={} INS={}" \
-            .format( self.num_sub, self.num_del, self.num_ins))
-        return {
-            'aa_count': self.aa_count / float(self.n),
-            'ab_count': self.ab_count / float(self.n),
-            'sub': self.num_sub / float(self.ab_count),
-            'del': self.num_del / float(self.ab_count),
-            'ins': self.num_ins / float(self.ab_count)
-        }
+            .format(self.ops['sub'], self.ops['del'], self.ops['ins']))
+        info = "All edits\t= {}\n".format(self.n)
+        info += "AA edits\t= {:.4f}\n".format(self.aa_count / float(self.n))
+        info += "AB edits\t= {:.4f}\n".format(self.ab_count / float(self.n))
+        info += "Substitutions\t= {:.4f}\n".format(self.ops['sub'] /
+                                                   float(self.ab_count))
+        info += "Deletions\t= {:.4f}\n".format(self.ops['del'] /
+                                               float(self.ab_count))
+        info += "Insertions\t= {:.4f}\n".format(self.ops['ins'] /
+                                                float(self.ab_count))
+        for a in self.matrix:
+            if a == CWord.NULL:
+                continue
+            ops = self.src_ops[a]
+            ab = sum(ops.values())
+            aa = self.matrix[a][a][0]
+            n = ab + aa
+            info += "Source '{}':\n".format(a)
+            info += "  AA\t= {:.4f}\n".format(aa / float(n))
+            info += "  AB\t= {:.4f}\n".format(ab / float(n))
+            info += "  Sub.\t= {:.4f}\n".format(ops['sub'] / float(ab))
+            info += "  Del.\t= {:.4f}\n".format(ops['del'] / float(ab))
+            info += "  Ins.\t= {:.4f}\n".format(ops['ins'] / float(ab))
+        return info
 
     def __calculate_statistics(self):
         self.aa_count = 0
         self.ab_count = 0
-        self.num_sub = 0
-        self.num_del = 0
-        self.num_ins = 0
+        # substitutions, deletions, insertions
+        self.ops = {'sub': 0, 'del': 0, 'ins': 0}
+        # substitutions, deletions, insertions per source
+        self.src_ops = {a: dict(self.ops) for a in self.matrix}
 
         for a, bs in self.matrix.iteritems():
-            for b, (c,f) in bs.iteritems():
+            for b, (c, _) in bs.iteritems():
                 if a == b:
                     self.aa_count += c
                 else:
                     self.ab_count += c
 
                 if a != CWord.NULL and b == CWord.NULL:
-                    self.num_del += c
+                    self.ops['del'] += c
+                    self.src_ops[a]['del'] += c
                 elif a == CWord.NULL and b != CWord.NULL:
-                    self.num_ins += c
+                    self.ops['ins'] += c
+                    self.src_ops[b]['ins'] += c
                 elif a != b:
-                    self.num_sub += c
-                else:
-                    log.warn("{} {}".format(a, b))
+                    self.ops['sub'] += c
+                    self.src_ops[a]['sub'] += c
