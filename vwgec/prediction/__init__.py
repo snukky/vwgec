@@ -10,11 +10,11 @@ from prediction.output_formatter import OutputFormatter
 from logger import log
 
 
-def apply_predictions(txt_io, out_io, cword_io, pred_io, threshold):
+def apply_predictions(txt_io, out_io, cword_io, pred_io, format='txt', threshold=0.0):
     log.info("Apply predictions with threshold= {}".format(threshold))
     reader = PredictionReader(
         txt_io, cword_io, pred_io, cset=config['target-cset'])
-    formatter = OutputFormatter(out_io, threshold=threshold)
+    formatter = OutputFormatter(out_io, format, threshold)
 
     for sid, sentence, preds in reader:
         formatter.format(sid, sentence.strip(), preds)

@@ -15,7 +15,8 @@ def main():
     args = parse_user_args()
     vwgec.load_config(args.config)
     vwgec.prediction.apply_predictions(args.input, args.output, args.cword,
-                                       args.pred, args.threshold)
+                                       args.pred, args.output_format,
+                                       args.threshold)
 
 
 def parse_user_args():
@@ -32,8 +33,8 @@ def parse_user_args():
         required=True, help="file with predictions")
     parser.add_argument('-f', '--config', required=True,
         help="configuration file")
-    parser.add_argument('-t', '--threshold',
-        help="threshold confidence")
+    parser.add_argument('-o', '--output-format', help="output format")
+    parser.add_argument('-t', '--threshold', help="threshold confidence")
 
     return parser.parse_args()
 
