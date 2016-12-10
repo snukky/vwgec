@@ -18,61 +18,29 @@ class CMatrixBuilder(object):
     def __init__(self):
         self.matrix = defaultdict(dict)
 
-    def build(self, cword_io, min_a_count, min_b_count):
-        ab_counts = Counter()
+    def build(self, cword_io):
         aa_counts = Counter()
-        ab_edits = {}
         reader = CWordReader(cword_io)
-
-        log.info("Extracting (a,b) edits")
-        for sid, (_, _, _, _, a, b) in reader:
-            if a == b:
-                continue
-            if a not in ab_edits:
-                ab_edits[a] = Counter()
-            ab_edits[a][b] += 1
-            ab_counts[a] += 1
-
-        log.info("Building matrix with counts")
         n = 0
-        for a in sorted(ab_counts, key=ab_counts.__getitem__, reverse=True):
-            if ab_counts[a] < min_a_count:
-                break
 
-            bs = {b: count
-                  for b, count in ab_edits[a].iteritems()
-                  if count >= min_b_count}
-
-            if len(bs):
-                self.matrix[a] = bs
-
-                # determine which AA counts will be needed to collect
-                aa_counts[a] = 0
-                for b in bs:
-                    aa_counts[b] = 0
-            n += len(bs)
-
-        del ab_edits
-
-        log.info("Counting (a,a) edits")
-        reader.rewind()
+        log.info("Count edits")
         for sid, (_, _, _, _, a, b) in reader:
-            if a == b and a in aa_counts:
+            if a not in self.matrix:
+                self.matrix[a] = defaultdict(int)
+            self.matrix[a][b] += 1
+            if a == b:
                 aa_counts[a] += 1
-                self.matrix[a][a] = 0
-                n += 1
+            n += 1
 
-        del ab_counts
-
-        log.info("Calculating probabilities")
+        log.info("Calculate probabilities")
         for a in aa_counts:
-            for b in self.matrix[a]:
-                ab_count = self.matrix[a][b]
-                ab_prob = ab_count / float(n)
-                self.matrix[a][b] = (ab_count, ab_prob)
-            aa_count = aa_counts[a]
-            aa_prob = aa_count / float(n)
-            self.matrix[a][a] = (aa_count, aa_prob)
+            for b in aa_counts:
+                if b in self.matrix[a]:
+                    count = self.matrix[a][b]
+                    prob = count / float(n)
+                    self.matrix[a][b] = (count, prob)
+                else:
+                    self.matrix[a][b] = (0, 0.0)
 
         return CMatrix(self.matrix)
 
@@ -100,6 +68,10 @@ class CMatrix(object):
         return sorted(edits, key=itemgetter(0, 2), reverse=True)
 
     def stats(self):
+        log.info("Edits n={} AA={} AB={}" \
+            .format(self.n, self.aa_count, self.ab_count))
+        log.info("Operations SUB={} DEL={} INS={}" \
+            .format( self.num_sub, self.num_del, self.num_ins))
         return {
             'aa_count': self.aa_count / float(self.n),
             'ab_count': self.ab_count / float(self.n),
@@ -128,3 +100,5 @@ class CMatrix(object):
                     self.num_ins += c
                 elif a != b:
                     self.num_sub += c
+                else:
+                    log.warn("{} {}".format(a, b))
