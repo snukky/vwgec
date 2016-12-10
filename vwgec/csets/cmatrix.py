@@ -83,8 +83,8 @@ class CMatrix(object):
         info += "Insertions\t= {:.4f}\n".format(self.ops['ins'] /
                                                 float(self.ab_count))
         for a in self.matrix:
-            if a == CWord.NULL:
-                continue
+            # if a == CWord.NULL:
+                # continue
             ops = self.src_ops[a]
             ab = sum(ops.values())
             aa = self.matrix[a][a][0]
@@ -117,7 +117,7 @@ class CMatrix(object):
                     self.src_ops[a]['del'] += c
                 elif a == CWord.NULL and b != CWord.NULL:
                     self.ops['ins'] += c
-                    self.src_ops[b]['ins'] += c
+                    self.src_ops[a]['ins'] += c
                 elif a != b:
                     self.ops['sub'] += c
                     self.src_ops[a]['sub'] += c
