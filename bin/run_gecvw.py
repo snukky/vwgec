@@ -17,6 +17,8 @@ import vwgec.features
 import vwgec.prediction
 import vwgec.evaluation
 import vwgec.evaluation.maxmatch
+from vwgec.utils import tokenization
+# import vwgec.utils.tokenization
 import vwgec.factors
 
 from vwgec.vw.vw_trainer import VWTrainer
@@ -71,7 +73,8 @@ def main():
     if config['train']:
         thr_value = read_threshold(args.work_dir) or thr_value
         if not config['dev-set']:
-            log.info("No development set, using threshold= {}".format(thr_value))
+            log.info("No development set, using threshold= {}".format(
+                thr_value))
 
     if config['train'] and config['dev-set'] and not thr_value:
         if not os.path.exists(args.work_dir + '/dev'):
@@ -108,7 +111,10 @@ def main():
             parallelize_m2(test_set)
 
             extract_features(
-                test_set, train=False, factors=config['factors'], freqs=feat_set)
+                test_set,
+                train=False,
+                factors=config['factors'],
+                freqs=feat_set)
             run_vw(model, test_set)
             apply_predictions(test_set, thr_value)
             evaluate_m2(test_set)
@@ -187,7 +193,12 @@ def apply_predictions(data, threshold):
 
 
 def parallelize_m2(data):
-    vwgec.evaluation.maxmatch.parallelize_m2(data + '.m2', data + '.txt')
+    vwgec.evaluation.maxmatch.parallelize_m2(data + '.m2', data + '.tok.txt')
+    cmd.run("cut -f1 {f}.tok.txt > {f}.tok.in".format(f=data))
+    tokenization.convert_tok(data + '.tok.in', data + '.in', 'nltk-moses')
+    cmd.run("cut -f2 {f}.tok.txt > {f}.tok.cor".format(f=data))
+    tokenization.convert_tok(data + '.tok.cor', data + '.cor', 'nltk-moses')
+    cmd.run("paste {f}.in {f}.cor > {f}.txt".format(f=data))
 
 
 def run_vw(model, data):
@@ -195,8 +206,10 @@ def run_vw(model, data):
 
 
 def evaluate_m2(data):
+    tokenization.convert_tok(data + '.out', data + '.tok.out', 'moses-nltk')
+    tokenization.restore_tok(data + '.tok.out', data + '.tok.in', data + '.sys')
     score = vwgec.evaluation.maxmatch.evaluate_m2(
-        data + '.out', data + '.m2', log_file=data + '.eval')
+        data + '.sys', data + '.m2', log_file=data + '.eval')
     log.info("Results for {}: {}".format(data, score))
 
 

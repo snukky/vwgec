@@ -22,7 +22,7 @@ class OutputFormatter(object):
                  format='txt',
                  threshold=0.0,
                  restore_case=True,
-                 debug=True):
+                 debug=False):
         self.output = output
         if format not in OutputFormatter.FORMATS.keys():
             log.error("Output format '{}' not recognized".format(format))

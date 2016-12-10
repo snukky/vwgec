@@ -3,17 +3,13 @@ import yaml
 
 from logger import log
 
-ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
-SCRIPTS_DIR = os.path.abspath(os.path.join(ROOT_DIR, '..', 'scripts'))
-
 REQUIRED_CONFIG_KEYS = [
-    'vowpal-wabbit', 'source-cset', 'target-cset',
-    'features', 'model'
+    'vowpal-wabbit', 'source-cset', 'target-cset', 'features', 'model'
 ]
 OPTIONAL_CONFIG_KEYS = [
-    'source-cset', 'target-cset', 'factors', 'word-classes',
-    'feature-filter', 'feature-freq', 'threshold', 'nulls-ngrams', 'nulls-limit',
-    'threads', 'vw-options', 'costs'
+    'source-cset', 'target-cset', 'factors', 'word-classes', 'feature-filter',
+    'feature-freq', 'threshold', 'nulls-ngrams', 'nulls-limit', 'threads',
+    'vw-options', 'costs'
 ]
 
 ABSOLUTE_PATH_KEYS = [
@@ -83,5 +79,8 @@ class GlobalConfig(Singleton):
         return {key: value
                 for key, value in config.iteritems() if value != None}
 
+
+ROOT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
+SCRIPTS_DIR = os.path.join(ROOT_DIR, 'scripts')
 
 config = GlobalConfig()
