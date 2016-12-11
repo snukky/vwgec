@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import cPickle as pickle
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -12,26 +13,20 @@ from logger import log
 class FeatureFilter(object):
     def __init__(self, freq_file, min_freq=None, limit=2000000, create_from=None):
         self.freq_file = freq_file
-        self.min_freq = min_freq or config['feature-freq'] or 5
+        min_freq = min_freq or config['feature-freq'] or 5
         self.feats = set()
 
         if create_from:
-            self.__calculate_freqs(create_from, freq_file)
-        if os.path.exists(self.freq_file):
-            self.__load_feats(self.min_freq, limit)
+            self.__calculate_freqs(create_from, freq_file + '.txt')
+            self.__binarize_freqs(freq_file + '.txt', freq_file, min_freq, limit)
+        if os.path.exists(freq_file):
+            self.__load_feats(freq_file)
 
-    def __load_feats(self, min_freq, limit):
-        log.info("Load features {}, min.freq= {} limit= {}" \
-                .format(self.freq_file, min_freq, limit))
-        feats = []
-        with open(self.freq_file) as freq_io:
-            for i, line in enumerate(freq_io):
-                count, feat = line.strip().split()
-                if int(count) < min_freq or i > limit:
-                    break
-                feats.append(feat)
-        log.info("Load {} features".format(len(feats)))
-        self.feats = set(feats)
+    def __load_feats(self, freq_file):
+        log.info("Load features from {}".format(freq_file))
+        with open(freq_file) as freq_io:
+            self.feats = pickle.load(freq_io)
+        log.info("Load {} features".format(len(self.feats)))
 
     def __calculate_freqs(self, feat_file, freq_file):
         command = r"cat {feats}" \
@@ -43,6 +38,22 @@ class FeatureFilter(object):
         cmd.run(
             command.format(
                 feats=feat_file, freqs=freq_file, threads=config['threads']))
+
+    def __binarize_freqs(self, freq_txt, freq_bin, min_freq, limit):
+        log.info("Binarize features {}, min.freq= {} limit= {}" \
+                .format(freq_txt, min_freq, limit))
+        feats = []
+        with open(freq_txt) as freq_io:
+            for i, line in enumerate(freq_io):
+                count, feat = line.strip().split()
+                if int(count) < min_freq or i > limit:
+                    break
+                feats.append(feat)
+
+        log.info("Binarize {} features".format(len(feats)))
+        with open(freq_bin, 'wb') as bin_io:
+            pickle.dump(set(feats), bin_io)
+
 
     def filter(self, feat_file):
         if not self.feats:
