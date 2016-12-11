@@ -17,8 +17,7 @@ import vwgec.features
 import vwgec.prediction
 import vwgec.evaluation
 import vwgec.evaluation.maxmatch
-from vwgec.utils import tokenization
-# import vwgec.utils.tokenization
+import vwgec.utils.tokenization
 import vwgec.factors
 
 from vwgec.vw.vw_trainer import VWTrainer
@@ -195,9 +194,11 @@ def apply_predictions(data, threshold):
 def parallelize_m2(data):
     vwgec.evaluation.maxmatch.parallelize_m2(data + '.m2', data + '.tok.txt')
     cmd.run("cut -f1 {f}.tok.txt > {f}.tok.in".format(f=data))
-    tokenization.convert_tok(data + '.tok.in', data + '.in', 'nltk-moses')
+    vwgec.utils.tokenization.convert_tok(data + '.tok.in', data + '.in',
+                                         'nltk-moses')
     cmd.run("cut -f2 {f}.tok.txt > {f}.tok.cor".format(f=data))
-    tokenization.convert_tok(data + '.tok.cor', data + '.cor', 'nltk-moses')
+    vwgec.utils.tokenization.convert_tok(data + '.tok.cor', data + '.cor',
+                                         'nltk-moses')
     cmd.run("paste {f}.in {f}.cor > {f}.txt".format(f=data))
 
 
@@ -206,8 +207,10 @@ def run_vw(model, data):
 
 
 def evaluate_m2(data):
-    tokenization.convert_tok(data + '.out', data + '.tok.out', 'moses-nltk')
-    tokenization.restore_tok(data + '.tok.out', data + '.tok.in', data + '.sys')
+    vwgec.utils.tokenization.convert_tok(data + '.out', data + '.tok.out',
+                                         'moses-nltk')
+    vwgec.utils.tokenization.restore_tok(data + '.tok.out', data + '.tok.in',
+                                         data + '.sys')
     score = vwgec.evaluation.maxmatch.evaluate_m2(
         data + '.sys', data + '.m2', log_file=data + '.eval')
     log.info("Results for {}: {}".format(data, score))

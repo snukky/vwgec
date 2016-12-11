@@ -15,6 +15,7 @@ QUOTES = ('"', '``', "''")
 
 
 def convert_tok(file_in, file_out, mode='moses-nltk'):
+    # TODO: clean this!
     if not mode:
         converter = ''
     elif mode == 'moses-nltk':
