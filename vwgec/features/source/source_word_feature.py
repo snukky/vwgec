@@ -8,9 +8,9 @@ from logger import log
 
 
 class SourceWordFeature(BaseFeature):
-    def __init__(self, factor=0):
-        super(SourceWordFeature, self).__init__(factor=factor)
+    def __init__(self, factor=0, weight=1.0):
+        super(SourceWordFeature, self).__init__(factor=factor, weight=weight)
 
     def extract(self, cword, csets, sentence, vector):
         err = ' '.join(sentence[self.factor][cword.pos[0]:cword.pos[1]])
-        vector.add_source_feature("err={}".format(err.lower()))
+        vector.add_source_feature("err={}".format(err.lower()), self.weight)

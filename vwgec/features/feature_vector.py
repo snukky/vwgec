@@ -18,11 +18,13 @@ class FeatureVector(object):
         self.costs = costs or config['costs'] or DEFAULT_COSTS
         self.__reset_features()
 
-    def add_source_feature(self, feature):
-        self.src_feats.append(self.escape_special_chars(feature))
+    def add_source_feature(self, feature, weight=1.0):
+        vw_feature = "{}:{}".format(self.escape_special_chars(feature), weight)
+        self.src_feats.append(vw_feature)
 
-    def add_target_feature(self, tgt, feature):
-        self.tgt_feats[tgt].append(self.escape_special_chars(feature))
+    def add_target_feature(self, tgt, feature, weight=1.0):
+        vw_feature = "{}:{}".format(self.escape_special_chars(feature), weight)
+        self.tgt_feats[tgt].append(vw_feature)
 
     def format(self, source, target):
         src_feats = self.__unique_elements(self.src_feats)

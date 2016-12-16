@@ -7,9 +7,10 @@ from logger import log
 
 
 class BaseFeature(object):
-    def __init__(self, window=3, factor=0):
+    def __init__(self, window=3, factor=0, weight=1.0):
         self.window = window
         self.factor = factor
+        self.weight = weight
 
     def extract(self, cword, csets, sentence, vector):
         raise NotImplementedError()

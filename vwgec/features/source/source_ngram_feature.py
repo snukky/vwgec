@@ -8,8 +8,9 @@ from logger import log
 
 
 class SourceNGramFeature(BaseFeature):
-    def __init__(self, size=3, factor=0):
-        super(SourceNGramFeature, self).__init__(window=size, factor=factor)
+    def __init__(self, size=3, factor=0, weight=1.0):
+        super(SourceNGramFeature, self).__init__(
+            window=size, factor=factor, weight=weight)
 
     def extract(self, cword, csets, sentence, vector):
         sentence = sentence[self.factor]
@@ -24,4 +25,4 @@ class SourceNGramFeature(BaseFeature):
 
             feat = "ngram{}{}^{}={}".format(num_words_before, num_words_after,
                                             self.factor, ' '.join(ngram))
-            vector.add_source_feature(feat.lower())
+            vector.add_source_feature(feat.lower(), self.weight)
