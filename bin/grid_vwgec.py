@@ -11,35 +11,42 @@ from joblib import Parallel, delayed
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-import vwgec
-from vwgec.settings import config
-from vwgec.logger import log
+ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 def main():
     args = parse_user_args()
 
-    log.info("Work dir: {}".format(args.work_dir))
+    info("Work dir: {}".format(args.work_dir))
     if not os.path.exists(args.work_dir):
         os.makedirs(args.work_dir)
 
     updates = config_updates(args.grid_config)
     nums = ["%.2d" % i for i in range(len(updates))]
-    log.info("Test {} config updates".format(len(updates)))
+    info("Test {} configs".format(len(updates)))
 
     jobs = []
     for num, update in zip(nums, updates):
-        log.info("Update config with: {}".format(update))
-        vwgec.load_config(args.config, update)
+        info("Model {}: {}".format(num, update))
 
         config = os.path.join(args.work_dir, "config.{}.yml".format(num))
-        vwgec.config.save_config(config)
         workdir = os.path.join(args.work_dir, "model." + num)
-        log = os.path.join(args.work_dir, "log." + num)
+        logfile = os.path.join(args.work_dir, "log." + num)
+
+        update_config(args.config, update, config, logfile)
 
         # run_vwgec(config, workdir)
-        jobs.append(delayed(run_vwgec)(config, workdir, log))
-    Parallel(n_jobs=args.jobs, verbose=False)(jobs)
+        jobs.append(delayed(run_vwgec)(config, workdir, num))
+    results = Parallel(n_jobs=args.jobs, verbose=100)(jobs)
+
+
+def update_config(config_in, update, config_out, log_file):
+    with open(config_in, 'r') as config_io:
+        config = yaml.load(config_io)
+        config.update(update)
+        config.update({'log-file': log_file})
+    with open(config_out, 'w') as config_io:
+        yaml.dump(config, config_io, default_flow_style=False)
 
 
 def config_updates(config_file):
@@ -50,17 +57,26 @@ def config_updates(config_file):
     return updates
 
 
-def run_vwgec(config, work_dir, log_file):
-    os.popen("{}/bin/run_vwgec.py -f {} -w {} &> {}" \
-        .format(vwgec.settings.ROOT_DIR, config, work_dir, log_file))
+def run_vwgec(config, work_dir, num=None):
+    info("Start {}".format(num))
+    os.popen("{}/bin/run_vwgec.py -f {} -w {}".format(ROOT_DIR, config,
+                                                      work_dir))
+    return True
+
+
+def info(msg):
+    print >> sys.stderr, msg
 
 
 def parse_user_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--config', required=True, help="configuration file")
-    parser.add_argument('-g', '--grid-config', required=True, help="configuration file")
-    parser.add_argument('-w', '--work-dir', required=True, help="working directory")
-    parser.add_argument('-j', '--jobs', default=4)
+    parser.add_argument(
+        '-f', '--config', required=True, help="configuration file")
+    parser.add_argument(
+        '-g', '--grid-config', required=True, help="configuration file")
+    parser.add_argument(
+        '-w', '--work-dir', required=True, help="working directory")
+    parser.add_argument('-j', '--jobs', type=int, default=4)
     return parser.parse_args()
 
 

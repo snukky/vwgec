@@ -31,8 +31,8 @@ class FeatureFilter(object):
     def __calculate_freqs(self, feat_file, freq_file):
         command = r"cat {feats}" \
                 " | grep '^shared' | cut -c11-" \
-                " | tr ' ' '\\n' | sort -S 10G --parallel {threads}" \
-                " | uniq -c | sort -rn -S 10G --parallel {threads}" \
+                " | tr ' ' '\\n' | sort -S 5G --parallel {threads}" \
+                " | uniq -c | sort -rn -S 5G --parallel {threads}" \
                 " | sed -r 's/ +([0-9]+)/\\1\\t/'" \
                 " > {freqs}"
         cmd.run(

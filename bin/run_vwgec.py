@@ -13,6 +13,7 @@ from vwgec.settings import config
 from vwgec.logger import log
 from vwgec.utils import cmd
 
+import vwgec.logger
 import vwgec.features
 import vwgec.prediction
 import vwgec.evaluation
@@ -28,7 +29,8 @@ THRESHOLD_FILE = 'threshold.txt'
 
 def main():
     args = parse_user_args()
-    # update = {'source-cset': args.source_cset, 'target-cset': args.target_cset}
+    vwgec.logger.set_level('debug')
+
     update = {}
     vwgec.load_config(args.config, update)
 
@@ -61,11 +63,12 @@ def main():
         log.info("Start training...")
 
         train_set = args.work_dir + '/train/train'
-        for train_data in config['train-set']:
-            cmd.run("cat {} >> {}".format(train_data, train_set + '.txt'))
+        if not os.path.exists(train_set + '.feats'):
+            for train_data in config['train-set']:
+                cmd.run("cat {} >> {}".format(train_data, train_set + '.txt'))
+            extract_features(
+                train_set, train=True, factors=config['factors'], freqs=feat_set)
 
-        extract_features(
-            train_set, train=True, factors=config['factors'], freqs=feat_set)
         VWTrainer().train(model, train_set + '.feats')
 
     thr_value = config['threshold'] or 0.0
@@ -218,12 +221,8 @@ def evaluate_m2(data):
 
 def parse_user_args():
     parser = argparse.ArgumentParser()
-    # parser.add_argument('-1', '--source-cset', help="source confusion set")
-    # parser.add_argument('-2', '--target-cset', help="target confusion set")
-    parser.add_argument(
-        '-f', '--config', required=True, help="configuration file")
-    parser.add_argument(
-        '-w', '--work-dir', required=True, help="working directory")
+    parser.add_argument('-f', '--config', required=True, help="configuration file")
+    parser.add_argument('-w', '--work-dir', required=True, help="working directory")
     parser.add_argument('-r', '--run', help="file to be corrected")
     parser.add_argument('-o', '--output', help="corrected file")
     return parser.parse_args()

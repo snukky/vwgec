@@ -22,6 +22,6 @@ class VWTrainer(object):
 
         options = (config['vw-options'] or "") + VWTrainer.DEFAULT_OPTIONS
 
-        log.info("training VW: {}".format(model))
+        log.info("train VW: {}".format(model))
         cmd.run("{vw}/vowpalwabbit/vw -f {model} -d {data} -c {options}" \
             .format(vw=self.vw, model=model, data=data, options=options))

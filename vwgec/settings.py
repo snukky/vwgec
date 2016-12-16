@@ -1,6 +1,7 @@
 import os
 import yaml
 
+import logger
 from logger import log
 
 REQUIRED_CONFIG_KEYS = [
@@ -36,6 +37,9 @@ class GlobalConfig(Singleton):
             except yaml.YAMLError as exc:
                 log.error("Load config failed: {}".format(exc))
         log.debug("Load config: {}".format(self.config))
+
+        if 'log-file' in self.config:
+            logger.set_log_file(self.config['log-file'])
 
     def save_config(self, config_file):
         log.debug("Save config: {}".format(config_file))

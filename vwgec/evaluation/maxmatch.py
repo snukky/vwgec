@@ -1,5 +1,12 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+from vwgec.settings import config
 from utils import cmd
 from settings import SCRIPTS_DIR
+from logger import log
 
 
 def parallelize_m2(m2_file, txt_file):
@@ -20,7 +27,8 @@ def evaluate_m2(out_file, m2_file, log_file=None):
     # script which cause propagation of forked threads to this script.
     result = cmd.run(
         "python {scripts}/m2scorer_fork --forks {threads} {txt} {m2}" \
-            .format(scripts=SCRIPTS_DIR, threads=4, txt=out_file, m2=m2_file))
+            .format(scripts=SCRIPTS_DIR, threads=config['threads'] or 4,
+                    txt=out_file, m2=m2_file))
 
     if log_file:
         with open(log_file, 'w') as log_io:
