@@ -9,6 +9,7 @@ from csets.cset import CSetPair
 from csets.cword_finder import CWordFinder
 from csets.null_finder import NullFinder
 from csets.cword_reader import CWordReader
+from csets.cmatrix import CMatrixBuilder
 
 from utils.input import each_factorized_input
 
@@ -32,3 +33,12 @@ def find_confusion_words(txt_io, cword_io, train=False, factor_files={}):
             count += 1
 
     log.info("Found {} confusion words".format(count))
+
+
+def build_cmatrix(cword_io, matrix_io):
+    cmatrix = CMatrixBuilder().build(cword_io)
+    matrix_io.write(cmatrix.tabulate(show='prob') + "\n")
+    matrix_io.write(cmatrix.tabulate(show='count') + "\n")
+    matrix_io.write(cmatrix.stats() + "\n")
+    for cor, err, count, prob in cmatrix.sorted_edits():
+        matrix_io.write("{}\t{}\t{}\t{}\n".format(cor, err, count, prob))

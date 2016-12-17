@@ -18,8 +18,10 @@ def main():
     if args.output:
         cmatrix.save(args.output)
     else:
-        for cor, err, count, prob in cmatrix.sorted_edits():
-            print "{}\t{}\t{}\t{}".format(cor, err, count, prob)
+        # for cor, err, count, prob in cmatrix.sorted_edits():
+            # print "{}\t{}\t{}\t{}".format(cor, err, count, prob)
+        print cmatrix.tabulate(show='prob')
+        print cmatrix.tabulate(show='count')
         print cmatrix.stats()
 
 

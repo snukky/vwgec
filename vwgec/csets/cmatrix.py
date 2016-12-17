@@ -7,11 +7,14 @@ from operator import itemgetter
 
 import cPickle as pickle
 
+import tabulate
+
 sys.path.insert(0, os.path.dirname(__file__))
 
 from csets.cword_reader import CWordReader
 from csets.cword import CWord
 from logger import log
+
 
 
 class CMatrixBuilder(object):
@@ -67,6 +70,18 @@ class CMatrix(object):
                  for a, words in self.matrix.iteritems()
                  for b, (count, prob) in words.iteritems()]
         return sorted(edits, key=itemgetter(0, 2), reverse=True)
+
+    def tabulate(self, show='prob'):
+        table = []
+        keys = self.matrix.keys()
+        idx = 0 if show == 'count' else 1
+        table.append([''] + keys)
+        for key in keys:
+            values = [self.matrix[key][k][idx] for k in keys]
+            if show != 'count':
+                values = ["{:.4f}".format(v) for v in values]
+            table.append([key] + values)
+        return tabulate.tabulate(table, headers='firstrow')
 
     def stats(self):
         log.info("Edits n={} AA={} AB={}" \

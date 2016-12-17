@@ -14,6 +14,7 @@ from vwgec.logger import log
 from vwgec.utils import cmd
 
 import vwgec.logger
+import vwgec.csets
 import vwgec.features
 import vwgec.prediction
 import vwgec.evaluation
@@ -157,6 +158,10 @@ def extract_features(data, train=False, factors={}, freqs=None):
         vwgec.features.filter_features(
             freqs, data + '.feats', create_from=train_freqs)
 
+    if train:
+        with open(data + '.cword') as cword, \
+             open(data + '.stats', 'w') as stats:
+            vwgec.csets.build_cmatrix(cword, stats)
 
 def train_vw(model, data):
     VWPredictor().run(model, data + '.feats', data + '.pred')
