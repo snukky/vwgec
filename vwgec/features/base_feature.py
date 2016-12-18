@@ -36,5 +36,11 @@ class BaseFeature(object):
         return (self.left_context(pos, sentence, window, factor),
                 self.right_context(pos, sentence, window, factor))
 
+    def bos_size(self, pos):
+        return max(0, self.window - pos[0])
+
+    def eos_size(self, pos, num_toks):
+        return max(0, pos[1] + self.window - num_toks)
+
     def __str__(self):
         return self.__class__
