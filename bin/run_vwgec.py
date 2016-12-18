@@ -122,6 +122,8 @@ def main():
             apply_predictions(test_set, thr_value)
             evaluate_m2(test_set)
 
+            analyze_system_output(test_set)
+
         for name, m2 in config['test-sets'].iteritems():
             test_set = cmd.filepath(args.work_dir, name)
             with open(test_set + '.eval') as test_io:
@@ -222,6 +224,17 @@ def evaluate_m2(data):
     score = vwgec.evaluation.maxmatch.evaluate_m2(
         data + '.sys', data + '.m2', log_file=data + '.eval')
     log.info("Results for {}: {}".format(data, score))
+
+
+def analyze_system_output(data):
+    cmd.run("paste {f}.in {f}.out > {f}.out.txt".format(f=data))
+    with open(data + '.out.txt') as txt, \
+         open(data + '.out.cword', 'w') as cword:
+        vwgec.csets.find_confusion_words(txt, cword, train=True, nulls=False)
+
+    with open(data + '.out.cword') as cword, \
+         open(data + '.out.stats', 'w') as stats:
+        vwgec.csets.build_cmatrix(cword, stats)
 
 
 def parse_user_args():

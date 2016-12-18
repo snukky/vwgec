@@ -1,5 +1,6 @@
 import os
 import sys
+import pprint
 
 from collections import Counter
 from collections import defaultdict
@@ -33,6 +34,11 @@ class CMatrixBuilder(object):
             self.matrix[a][b] += 1
             if a == b:
                 aa_counts[a] += 1
+            else:
+                if a not in aa_counts:
+                    aa_counts[a] = 0
+                if b not in aa_counts:
+                    aa_counts[b] = 0
             n += 1
 
         log.info("Calculate probabilities")
@@ -107,6 +113,8 @@ class CMatrix(object):
             info += "Source '{}':\n".format(a)
             info += "  AA\t= {:.4f}\n".format(aa / float(n))
             info += "  AB\t= {:.4f}\n".format(ab / float(n))
+            if ab == 0:
+                continue
             info += "  Sub.\t= {:.4f}\n".format(ops['sub'] / float(ab))
             info += "  Del.\t= {:.4f}\n".format(ops['del'] / float(ab))
             info += "  Ins.\t= {:.4f}\n".format(ops['ins'] / float(ab))

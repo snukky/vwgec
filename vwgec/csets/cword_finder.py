@@ -97,3 +97,6 @@ class CWordFinder():
 
     def add_extra_finder(self, finder):
         self.extra_finders.append(finder)
+
+    def clear_extra_finders(self):
+        self.extra_finders = []

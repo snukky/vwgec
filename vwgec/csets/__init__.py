@@ -16,14 +16,20 @@ from utils.input import each_factorized_input
 from logger import log
 
 
-def find_confusion_words(txt_io, cword_io, train=False, factor_files={}):
+def find_confusion_words(txt_io,
+                         cword_io,
+                         train=False,
+                         factor_files={},
+                         nulls=True):
     log.info("Find confusion words in {}".format(txt_io.name))
 
     csets = CSetPair(config['source-cset'], config['target-cset'])
     finder = CWordFinder(csets, train)
-    if config['nulls-ngrams']:
+    if nulls and config['nulls-ngrams']:
         null_finder = NullFinder(csets.src, config['nulls-ngrams'])
         finder.add_extra_finder(null_finder)
+    else:
+        finder.clear_extra_finders()
     reader = CWordReader(cword_io)
 
     count = 0
@@ -37,8 +43,10 @@ def find_confusion_words(txt_io, cword_io, train=False, factor_files={}):
 
 def build_cmatrix(cword_io, matrix_io):
     cmatrix = CMatrixBuilder().build(cword_io)
-    matrix_io.write(cmatrix.tabulate(show='prob') + "\n")
-    matrix_io.write(cmatrix.tabulate(show='count') + "\n")
+
+    matrix_io.write(cmatrix.tabulate(show='prob') + "\n\n")
+    matrix_io.write(cmatrix.tabulate(show='count') + "\n\n")
     matrix_io.write(cmatrix.stats() + "\n")
+
     for cor, err, count, prob in cmatrix.sorted_edits():
         matrix_io.write("{}\t{}\t{}\t{}\n".format(cor, err, count, prob))
