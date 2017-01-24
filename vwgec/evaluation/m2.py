@@ -62,20 +62,8 @@ class M2Evaluator(object):
             log.error("Different number of sentences between text and M2 file:"
                       " {} != {}".format(num_of_lines, num_of_sents))
 
-        # Scorer is run by system shell because of the bug inside the scorer
-        # script which cause the propagation of forked threads to this script.
-        result = cmd.run(
-            "python {scripts}/m2scorer_fork --forks {threads} {txt} {m2}" \
-                .format(scripts=SCRIPTS_DIR, threads=4, txt=out_file, m2=m2_file))
+        scores = maxmatch.evaluate_m2(out_file, m2_file)
 
-        # Currently I'm using Marcin's C++ implementation of m2scorer.
-        # result = cmd.run("{scorer} --candidate {txt} --reference {m2}" \
-        # .format(scorer=config.TOOLS.M2SCORER_CPP, txt=text_file, m2=m2_file))
-
-        scores = [
-            float(line.rsplit(' ', 1)[-1])
-            for line in result.strip().split("\n")
-        ]
         # Scores includes precision, recall, and F-score. We want to have
         # F-score as main evaluation metric.
         return scores[2], scores[0], scores[1]
